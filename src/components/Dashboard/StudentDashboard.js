@@ -1,12 +1,13 @@
 import React from 'react';
 import './StudentDashboard.css';
 import { Link } from 'react-router-dom';
+import { paths } from '../../lib/path';
 
 const modules = [
   { name: 'Grammar', route: '/grammar', color: '#6C63FF' },
   { name: 'Vocabulary', route: '/vocabulary', color: '#00B894' },
   { name: 'Stories', route: '/stories', color: '#0984E3' },
-  // { name: 'Pronunciation', route: '/pronunciation', color: '#E17055' },
+  { name: 'Courses', route: paths.COURSES, color: '#E17055' },
 ];
 
 const StudentDashboard = () => {

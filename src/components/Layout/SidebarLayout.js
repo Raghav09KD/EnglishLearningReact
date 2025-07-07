@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import './SidebarLayout.css';
 import Navbar from './Navbar';
+import { paths } from '../../lib/path';
 
 const SidebarLayout = () => {
   return (
@@ -14,7 +15,7 @@ const SidebarLayout = () => {
           <NavLink to="/student/progress" className="link">Progress</NavLink>
           <NavLink to="/student/badges" className="link">Vocabulary</NavLink>
           <NavLink to="/student/quiz" className="link">Stories</NavLink>
-          <NavLink to="/student/speech-trainer" className="link">Pronunciation</NavLink>
+          <NavLink to={paths.COURSES} className="link">Courses</NavLink>
         </nav>
       </aside>
 
