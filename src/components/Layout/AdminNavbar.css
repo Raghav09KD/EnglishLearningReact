@@ -1,0 +1,91 @@
+.admin-navbar {
+  background-color: #2c3e50;
+  padding: 1rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.admin-logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.hamburger .bar {
+  height: 3px;
+  width: 25px;
+  background-color: white;
+  transition: 0.3s;
+}
+
+.admin-links {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-links li {
+  display: flex;
+  align-items: center;
+}
+
+.admin-links a,
+.admin-links .logout-btn {
+  color: white;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px 10px;
+  font-family: inherit;
+}
+
+.admin-links a:hover,
+.admin-links .logout-btn:hover {
+  color: #ffcccc;
+}
+
+.active-link {
+  color: rgb(219, 100, 100);
+  font-weight: bold;
+}
+
+/* Responsive: Hamburger & vertical menu */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .admin-links {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: #2c3e50;
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    padding: 1rem 0;
+  }
+
+  .admin-links.active {
+    display: flex;
+  }
+
+  .admin-links li {
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+}

@@ -1,0 +1,67 @@
+.story-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.story-container h2{
+    padding-bottom: 25px;
+    text-align: center;
+    font-size: 1.6rem;
+    color: #333;
+    justify-content: center;
+    align-items: center;
+}
+
+.story-form input,
+.story-form textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.story-form input:focus,
+.story-form textarea:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.story-form button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.story-card {
+  background: #f9fbff;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.story-card h4 {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.edit-btn {
+  color: black;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+}
+
+.delete-btn {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+}

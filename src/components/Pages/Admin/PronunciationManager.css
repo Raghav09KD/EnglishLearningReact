@@ -1,0 +1,137 @@
+.pronunciation-container {
+    padding: 2rem;
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+}
+
+.pronunciation-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+    color: #333;
+    justify-content: center;
+    align-items: center;
+}
+
+.pronunciation-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pronunciation-form {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.pronunciation-form input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    flex: 1 1 200px;
+    max-width: 300px;
+}
+
+.pronunciation-form .action-button {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.pronunciation-form .action-button:hover {
+    background-color: #218838;
+}
+
+.pronunciation-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.pronunciation-card {
+    background-color: #f8fbff;
+    border-radius: 10px;
+    padding: 1rem;
+    width: 260px;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pronunciation-card h4 {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.pronunciation-card p {
+    margin-bottom: 0.8rem;
+    color: #444;
+}
+
+@media (max-width: 600px) {
+    .pronunciation-card {
+        width: 90%;
+    }
+}
+
+.action-button {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+
+.card-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+}
+
+.card-buttons button {
+    flex: 1;
+    padding: 0.4rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.card-buttons .edit-btn {
+    color: #212529;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.card-buttons .delete-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
