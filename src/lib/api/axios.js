@@ -20,6 +20,25 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response Interceptor
+instance.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      console.warn("Token expired or unauthorized. Logging out.");
+
+      // Clear localStorage
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
+      // Optional: Redirect to login
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(err);
+  }
+);
+
 // Optional: Add global error interceptor
 instance.interceptors.response.use(
   (response) => response,

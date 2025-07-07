@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 const SidebarLayout = () => {
   return (
     <>
-    <Navbar/>
+    {/* <Navbar/> */}
     <div className="layout-container">
       <aside className="sidebar">
         <nav className="nav-links">

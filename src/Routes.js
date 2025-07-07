@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -23,44 +23,63 @@ import VocabularyModule from './components/Pages/Student/VocabularyModule';
 import StoriesModule from './components/Pages/Student/StoriesModule';
 import PronunciationModule from './components/Pages/Student/PronunciationModule';
 import AdminAddCourse from './components/Pages/Admin/AddCources';
+import CourcesList from './pages/Course/CourcesList/CourcesList';
+import CourseDetails from './pages/Course/CourseDetails/CourseDetials';
+import { paths } from './lib/path';
+import Layout from './components/Layout/Layout';
 
 
 const AllRoutes = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('user'));
 
-   const RequireAuth = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const RequireAuth = ({ children }) => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+    if (!user) {
+      return <Navigate to="/" replace />;
+    }
+
+    return children;
+  };
+
+  function PrivateRoute({ children, allowedRoles }) {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) return <Navigate to="/login" replace />;
+
+    // Check if user's role is allowed for this route
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/" replace />;
+    }
+
+    return children;
   }
 
-  return children;
-};
+  const PublicRoute = ({ children }) => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
- const PublicRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+    // Redirect authenticated users away from login/register
+    if (user) {
+      return <Navigate to="/student/dashboard" replace />;
+    }
 
-  // Redirect authenticated users away from login/register
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+    return children;
+  };
 
-  return children;
-};
-
-    return (<Router>
-      <Routes>
-
+  return (<Router>
+    <Routes>
+      <Route element={<Layout />}>
         {/* Home Route */}
-        <Route path="/" element={<RequireAuth><Home/></RequireAuth>} />
-        {/* <Route path="/" element={user ? <Navigate to="/student/dashboard" /> : <Home />} /> */}
-  <Route path="/addCourse" element={<RequireAuth><AdminAddCourse/></RequireAuth>} />
+        <Route path="/" element={<Home />} />
+        <Route path={paths.ADD_COURSE} element={<PrivateRoute allowedRoles={["admin"]}><AdminAddCourse /></PrivateRoute>} />
         {/* Student Auth */}
-        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path={paths.LOGIN} element={<PublicRoute><Login /></PublicRoute>} />
+
+        <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourcesList /></PrivateRoute>} />
+        <Route path="/courses/:id" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourseDetails /></PrivateRoute>} />
         {/* <Route path="/login" element={<AdminAddCourse />} /> */}
 
-        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute ><Register /></PublicRoute>} />
 
         {/* Student Layout with Sidebar */}
         <Route path="/student" element={<SidebarLayout />}>
@@ -77,20 +96,22 @@ const AllRoutes = () => {
 
         {/* Admin Dashboard */}
         <Route
-          path="/admin"
+          path={paths.ADMIN_DASHBOARD}
           element={
+            <PrivateRoute allowedRoles={["admin"]}>
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <AdminDashboard />
             </AdminLayout>
+            </PrivateRoute>
           }
         />
 
         <Route
-          path="/dashboard/AdminDashboard"
+          path={paths.ADMIN_DASHBOARD}
           element={
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <AdminDashboard />
             </AdminLayout>
           }
@@ -101,7 +122,7 @@ const AllRoutes = () => {
           path="/admin/grammar"
           element={
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <GrammarManager />
             </AdminLayout>
           }
@@ -111,7 +132,7 @@ const AllRoutes = () => {
           path="/admin/vocabulary"
           element={
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <VocabularyManager />
             </AdminLayout>
           }
@@ -121,7 +142,7 @@ const AllRoutes = () => {
           path="/admin/stories"
           element={
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <StoryManager />
             </AdminLayout>
           }
@@ -131,14 +152,14 @@ const AllRoutes = () => {
           path="/admin/pronunciation"
           element={
             <AdminLayout>
-              <AdminNavbar />
+              {/* <AdminNavbar /> */}
               <PronunciationManager />
             </AdminLayout>
           }
         />
-
-      </Routes>
-    </Router>)
+      </Route>
+    </Routes>
+  </Router>)
 }
 
 export default AllRoutes;
