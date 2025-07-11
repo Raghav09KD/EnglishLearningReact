@@ -131,14 +131,29 @@ const AdminDashboard = () => {
           value={stats.pronunciationCount}
           icon={<PlusCircle />}
           color="purple"
-          link ={paths.ADD_COURSE}
+          link={paths.ADD_COURSE}
         />
-         <DashboardCard
+        <DashboardCard
           title="View Courses"
           value={stats.pronunciationCount}
           // icon={<PlusCircle />}
           color="red"
-          link ={paths.COURSES}
+          link={paths.COURSES}
+        />
+
+        <DashboardCard
+          title="Add prounciation"
+          value={stats.pronunciationCount}
+          // icon={<PlusCircle />}
+          color="red"
+          link={paths.CREATE_SPEECH_PRACTISE}
+        />
+         <DashboardCard
+          title="View prounciation"
+          value={stats.pronunciationCount}
+          // icon={<PlusCircle />}
+          color="red"
+          link={paths.LIST_SPEECH_PRACTISE}
         />
       </div>I
 
@@ -163,17 +178,17 @@ function DashboardCard({ title, icon, value, color = "blue", link }) {
 
   return (
     <Link to={link}>
-    <div
-      className={`border rounded-xl p-5 shadow-sm hover:shadow-md transition-all ${colorMap[color]} cursor-pointer`}
-    >
-      <div className="flex items-center gap-3">
-        <div className="text-2xl">{icon}</div>
-        <div>
-          <h4 className="text-lg font-semibold">{title}</h4>
-          <p className="text-xl font-bold mt-1">{value}</p>
+      <div
+        className={`border rounded-xl p-5 shadow-sm hover:shadow-md transition-all ${colorMap[color]} cursor-pointer`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="text-2xl">{icon}</div>
+          <div>
+            <h4 className="text-lg font-semibold">{title}</h4>
+            <p className="text-xl font-bold mt-1">{value}</p>
+          </div>
         </div>
       </div>
-    </div>
     </Link>
   );
 }

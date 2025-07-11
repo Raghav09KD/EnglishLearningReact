@@ -27,6 +27,10 @@ import CourcesList from './pages/Course/CourcesList/CourcesList';
 import CourseDetails from './pages/Course/CourseDetails/CourseDetials';
 import { paths } from './lib/path';
 import Layout from './components/Layout/Layout';
+import SpeechPractice from './pages/Course/SpeechRecognisation/SpeechPractice';
+import CreateSpeechPractice from './pages/Course/SpeechRecognisation/AddSpeech';
+import SpeechPracticeList from './pages/Course/SpeechRecognisation/SpeechPractiseList';
+import AdminProgress from './pages/UserProgress/UserProgress';
 
 
 const AllRoutes = () => {
@@ -77,9 +81,15 @@ const AllRoutes = () => {
 
         <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourcesList /></PrivateRoute>} />
         <Route path="/courses/:id" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourseDetails /></PrivateRoute>} />
+
         {/* <Route path="/login" element={<AdminAddCourse />} /> */}
 
         <Route path="/register" element={<PublicRoute ><Register /></PublicRoute>} />
+
+        {/* speech practise */}
+        <Route path={paths.PRACTISE_SPEECH} element={<PrivateRoute allowedRoles={["admin", 'student']}><SpeechPractice /></PrivateRoute>} />
+        <Route path={paths.CREATE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><CreateSpeechPractice /></PrivateRoute>} />
+        <Route path={paths.LIST_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", "student"]}><SpeechPracticeList /></PrivateRoute>} />
 
         {/* Student Layout with Sidebar */}
         <Route path="/student" element={<SidebarLayout />}>
@@ -93,16 +103,18 @@ const AllRoutes = () => {
         {/* Admin Auth */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/register" element={<AdminRegister />} />
+        <Route path="/admin/Viewprogress" element={<PrivateRoute allowedRoles={['admin']}><AdminProgress /></PrivateRoute>} />
+
 
         {/* Admin Dashboard */}
         <Route
           path={paths.ADMIN_DASHBOARD}
           element={
             <PrivateRoute allowedRoles={["admin"]}>
-            <AdminLayout>
-              {/* <AdminNavbar /> */}
-              <AdminDashboard />
-            </AdminLayout>
+              <AdminLayout>
+                {/* <AdminNavbar /> */}
+                <AdminDashboard />
+              </AdminLayout>
             </PrivateRoute>
           }
         />

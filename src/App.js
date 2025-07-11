@@ -1,7 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import AllRoutes from "./Routes";
 
-
 function App() {
 
 

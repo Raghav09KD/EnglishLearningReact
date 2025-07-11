@@ -6,4 +6,7 @@ export const paths = {
     ADD_COURSE : '/addCourse',
     COURSES : '/courses',
 
+    PRACTISE_SPEECH : '/speechPractise/test',
+    CREATE_SPEECH_PRACTISE : '/speechPractise/create',
+    LIST_SPEECH_PRACTISE : '/speechPractise/list',
 }
