@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AdminDashboard.css';
-import { Bar } from 'react-chartjs-2';
+import { Card, Col, Row, Button, Typography } from "antd";
+import { PlusCircleOutlined, BookOutlined, UserOutlined, SoundOutlined } from "@ant-design/icons";
 import {
   BookOpen,
   FileText,
   Volume2,
   PlusCircle,
 } from "lucide-react";
+
 import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 import { Link } from 'react-router-dom';
 import { paths } from '../../lib/path';
+import request from '../../lib/api/request';
 
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+const { Title } = Typography;
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     grammarCount: 0,
@@ -103,66 +107,83 @@ const AdminDashboard = () => {
     maintainAspectRatio: false,
   };
 
+
+
   return (
-    <div className="admin-dashboard">
-      <h2>📊 Admin Dashboard</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <DashboardCard
-          title="Grammar Lessons"
-          value={stats.grammarCount}
-          icon={<FileText />}
-          color="blue"
-          link={null}
-        />
-        <DashboardCard
-          title="Vocabulary"
-          value={stats.vocabCount}
-          icon={<BookOpen />}
-          color="green"
-        />
-        <DashboardCard
-          title="Stories"
-          value={stats.storyCount}
-          icon={<Volume2 />}
-          color="orange"
-        />
-        <DashboardCard
-          title="Add Course"
-          value={stats.pronunciationCount}
-          icon={<PlusCircle />}
-          color="purple"
-          link={paths.ADD_COURSE}
-        />
-        <DashboardCard
-          title="View Courses"
-          value={stats.pronunciationCount}
-          // icon={<PlusCircle />}
-          color="red"
-          link={paths.COURSES}
-        />
+    <div className="p-4">
+      <Title level={2}>Admin Dashboard</Title>
 
-        <DashboardCard
-          title="Add prounciation"
-          value={stats.pronunciationCount}
-          // icon={<PlusCircle />}
-          color="red"
-          link={paths.CREATE_SPEECH_PRACTISE}
-        />
-         <DashboardCard
-          title="View prounciation"
-          value={stats.pronunciationCount}
-          // icon={<PlusCircle />}
-          color="red"
-          link={paths.LIST_SPEECH_PRACTISE}
-        />
-      </div>I
+      {/* Content Section */}
+      <Title level={4} className="mt-6">📚 Course Management</Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Link to={paths.ADD_COURSE}>
+            <Card
+              hoverable
+              title="Add Course"
+              bordered
+              actions={[<PlusCircleOutlined key="add" />]}
+            >
+              {/* <p>Total Courses: {stats.courseCount ?? 0}</p> */}
+            </Card>
+          </Link>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Link to={paths.MANAGE_COURSE}>
+            <Card
+              hoverable
+              title="Manage Courses"
+              bordered
+              actions={[<BookOutlined key="manage" />]}
+            >
+              {/* <p>Active Courses: {stats.activeCourseCount ?? 0}</p> */}
+            </Card>
+          </Link>
+        </Col>
+      </Row>
 
-      <div className="dashboard-chart">
-        <h3 className="mt-4 mb-3">📈 Content Overview</h3>
-        <div className="chart-wrapper">
-          <Bar data={chartData} options={chartOptions} />
-        </div>
-      </div>
+      {/* Pronunciation Section */}
+      <Title level={4} className="mt-6">🗣️ Pronunciation Practice</Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Link to={paths.CREATE_SPEECH_PRACTISE}>
+            <Card
+              hoverable
+              title="Add Pronunciation"
+              actions={[<PlusCircleOutlined key="add-speech" />]}
+            >
+              {/* <p>Total Sets: {stats.pronunciationCount ?? 0}</p> */}
+            </Card>
+          </Link>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Link to={paths.LIST_SPEECH_PRACTISE}>
+            <Card
+              hoverable
+              title="View Pronunciations"
+              actions={[<SoundOutlined key="view-speech" />]}
+            >
+              <p>Practice Sets Available</p>
+            </Card>
+          </Link>
+        </Col>
+      </Row>
+
+      {/* User Management */}
+      <Title level={4} className="mt-6">👥 User Management</Title>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Link to={paths.ADMIN_USER_TABLE}>
+            <Card
+              hoverable
+              title="View All Users"
+              actions={[<UserOutlined key="users" />]}
+            >
+              <p>Manage students and their progress</p>
+            </Card>
+          </Link>
+        </Col>
+      </Row>
     </div>
   );
 };

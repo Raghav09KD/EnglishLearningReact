@@ -31,6 +31,8 @@ import SpeechPractice from './pages/Course/SpeechRecognisation/SpeechPractice';
 import CreateSpeechPractice from './pages/Course/SpeechRecognisation/AddSpeech';
 import SpeechPracticeList from './pages/Course/SpeechRecognisation/SpeechPractiseList';
 import AdminProgress from './pages/UserProgress/UserProgress';
+import AdminUserTable from './pages/Users/UsersList';
+import AdminCoursesTable from './pages/Course/AdminCourseTable/AdminCourses';
 
 
 const AllRoutes = () => {
@@ -64,27 +66,52 @@ const AllRoutes = () => {
 
     // Redirect authenticated users away from login/register
     if (user) {
-      return <Navigate to="/student/dashboard" replace />;
+      return <Navigate to="/dashboard" replace />;
     }
 
     return children;
   };
 
+  function DashboardRouter() {
+
+    if (!user) return <Navigate to="/login" />;
+
+    if (user.role === "admin") return <AdminDashboard />;
+    if (user.role === "student") return <StudentDashboard />;
+
+    return <div>Unauthorized role</div>; // fallback if role is weird
+  }
+
+
   return (<Router>
     <Routes>
       <Route element={<Layout />}>
         {/* Home Route */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
         <Route path={paths.ADD_COURSE} element={<PrivateRoute allowedRoles={["admin"]}><AdminAddCourse /></PrivateRoute>} />
         {/* Student Auth */}
         <Route path={paths.LOGIN} element={<PublicRoute><Login /></PublicRoute>} />
 
         <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourcesList /></PrivateRoute>} />
+        <Route path={paths.MANAGE_COURSE} element={<PrivateRoute allowedRoles={["admin"]}><AdminCoursesTable /></PrivateRoute>} />
+
         <Route path="/courses/:id" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourseDetails /></PrivateRoute>} />
 
         {/* <Route path="/login" element={<AdminAddCourse />} /> */}
 
         <Route path="/register" element={<PublicRoute ><Register /></PublicRoute>} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <DashboardRouter />
+            </RequireAuth>
+          }
+        />
+
+        <Route path={paths.ADMIN_USER_TABLE} element={<PrivateRoute allowedRoles={["admin"]}><AdminUserTable /></PrivateRoute>} />
+
 
         {/* speech practise */}
         <Route path={paths.PRACTISE_SPEECH} element={<PrivateRoute allowedRoles={["admin", 'student']}><SpeechPractice /></PrivateRoute>} />

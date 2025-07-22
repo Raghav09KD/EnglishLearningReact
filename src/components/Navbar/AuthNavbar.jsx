@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Layout, Avatar, Button, Typography, Space } from "antd";
+import { LogoutOutlined, DashboardOutlined, ReadOutlined } from "@ant-design/icons";
 import { paths } from "../../lib/path";
 
-export default function AuthNavbar() {
+const { Header } = Layout;
+const { Text } = Typography;
 
+export default function AuthNavbar() {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
 
@@ -13,53 +16,56 @@ export default function AuthNavbar() {
     navigate(paths.LOGIN);
   };
 
-    const getInitial = (name) => {
+  const getInitial = (name) => {
     if (!name) return "U";
     return name.trim().charAt(0).toUpperCase();
   };
 
-
   return (
-        <nav className="bg-white shadow-md px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+    <Header className="bg-white shadow-md px-8 py-4 flex justify-between items-center sticky top-0 z-50 !h-auto">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2 text-indigo-600 font-bold text-2xl">
         Engli<span className="text-gray-800">Learn</span>
       </Link>
 
-           <div className="flex items-center gap-6">
-        {/* Avatar + Name */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold shadow-sm">
+      <Space size="large" className="items-center">
+        {/* Avatar + Greeting */}
+        <Space size="small" className="items-center">
+          <Avatar className="bg-indigo-500" size="small">
             {getInitial(user?.name)}
-          </div>
-          <span className="text-sm text-gray-600">
-            Hi, <span className="font-medium">{user?.name}</span>
-          </span>
-        </div>
+          </Avatar>
+          <Text type="secondary" className="text-sm">
+            Hi, <span className="font-medium text-gray-700">{user?.name}</span>
+          </Text>
+        </Space>
 
-        {user?.role === "admin" ? (
-          <Link
-            to={paths.ADMIN_DASHBOARD}
-            className="text-sm text-indigo-600 hover:text-indigo-800 transition font-medium"
+        {/* Dashboard Link */}
+        <Link
+          to={
+            user?.role === "admin"
+              ? paths.ADMIN_DASHBOARD
+              : paths.STUDENT_DASHBOARD
+          }
+        >
+          <Button
+            type="link"
+            icon={user?.role === "admin" ? <DashboardOutlined /> : <ReadOutlined />}
+            className="text-indigo-600 hover:text-indigo-800 font-medium text-sm"
           >
-            Admin Panel
-          </Link>
-        ) : (
-          <Link
-            to={paths.STUDENT_DASHBOARD}
-            className="text-sm text-indigo-600 hover:text-indigo-800 transition font-medium"
-          >
-            My Course
-          </Link>
-        )}
+            {user?.role === "admin" ? "Admin Panel" : "My Course"}
+          </Button>
+        </Link>
 
-        <button
+        {/* Logout */}
+        <Button
+          danger
+          icon={<LogoutOutlined />}
           onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-1.5 rounded-md text-sm hover:bg-red-600 transition shadow-sm"
+          className="text-sm"
         >
           Logout
-        </button>
-      </div>
-    </nav>
+        </Button>
+      </Space>
+    </Header>
   );
 }

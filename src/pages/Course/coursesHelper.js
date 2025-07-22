@@ -12,6 +12,13 @@ export const getCourseById = (id) =>
     url: `/courses/getCourse/${id}`,
   });
 
+export const updateCourseByIdAPI = (id, courseData) => request({
+  method: "put",
+  url: `/courses/update/${id}`,
+  data: courseData,
+  auth: true
+})
+
 export const getCourseSection = (id) =>
   request({
     method: "get",
@@ -34,7 +41,7 @@ export const updateCourseProgress = (data) =>
     auth: true
   });
 
-  export const getStudentProgress = () =>
+export const getStudentProgress = () =>
   request({
     method: "get",
     url: "/admin/progress",

@@ -1,16 +1,36 @@
-import React, { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
-import axios from "axios";
-import Input from "../../ui/Input";
+import { useState } from "react";
 import request from "../../../lib/api/request";
 import { apiPaths } from "../../../lib/api/apiPath";
 
-export default function AdminAddCourse() {
-  const [course, setCourse] = useState({
-    title: "",
-    description: "",
-    sections: [],
-  });
+import {
+  Form,
+  Input,
+  Button,
+  Space,
+  Card,
+  Typography,
+  Divider,
+  InputNumber,
+  Popconfirm,
+} from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useLocation } from "react-router-dom";
+import { updateCourseByIdAPI } from "../../../pages/Course/coursesHelper";
+
+const { Title } = Typography;
+
+export default function AdminAddCourse({ onSubmit }) {
+  const location = useLocation();
+  const initialData = location.state?.course || null;
+  console.log("🚀 ~ AdminAddCourse ~ location.state:", location.state)
+  console.log("🚀 ~ AdminAddCourse ~ initialData:", initialData)
+  const [course, setCourse] = useState(
+    initialData || {
+      title: "",
+      description: "",
+      sections: [],
+    }
+  );
 
   const addSection = () => {
     setCourse((prev) => ({
@@ -35,12 +55,12 @@ export default function AdminAddCourse() {
     setCourse({ ...course, sections: updated });
   };
 
-const updateSection = (index, key, value) => {
-  const updatedSections = [...course.sections];
-  const updatedSection = { ...updatedSections[index], [key]: value };
-  updatedSections[index] = updatedSection;
-  setCourse({ ...course, sections: updatedSections });
-};
+  const updateSection = (index, key, value) => {
+    const updatedSections = [...course.sections];
+    const updatedSection = { ...updatedSections[index], [key]: value };
+    updatedSections[index] = updatedSection;
+    setCourse({ ...course, sections: updatedSections });
+  };
 
   const addQuizToSection = (sectionIndex) => {
     const updated = [...course.sections];
@@ -64,179 +84,199 @@ const updateSection = (index, key, value) => {
     setCourse({ ...course, sections: updated });
   };
 
-const handleSubmit = async () => {
-  try {
-    console.log(course);
-     const res = await request({
-        method: "post",
-        url: apiPaths.createCourse,
-        data: course,
-        auth: true, // or false if public
-    });
-    alert("Course created successfully!");
-    console.log(res.data); // Optional: log response
-  } catch (err) {
-    console.error("Create course error:", err);
-    alert("Error creating course.");
+  const handleSubmit = async () => {
+    try {
+      console.log(course);
+      if (initialData) {
+        await handleUpdateCourse(course);
+        alert("Course updated successfully!");
+
+      } else {
+        const res = await request({
+          method: "post",
+          url: apiPaths.createCourse,
+          data: course,
+          auth: true, // or false if public
+        });
+        alert("Course created successfully!");
+        console.log(res.data); // Optional: log response
+      }
+
+    } catch (err) {
+      console.error("Create course error:", err);
+      alert("Error creating course.");
+    }
+  };
+
+  const removeQuiz = (sectionIndex, quizIndex) => {
+    const updatedSections = [...course.sections];
+    updatedSections[sectionIndex].quiz.splice(quizIndex, 1);
+    setCourse({ ...course, sections: updatedSections });
+  };
+
+
+  const handleUpdateCourse = async (updateCourse) => {
+    try {
+      const res = await updateCourseByIdAPI(updateCourse?._id, updateCourse);
+      console.log("🚀 ~ handleUpdateCourse ~ res:", res);
+      // You can add logic to update the course in the state or notify the user
+    } catch (error) {
+      throw new Error("Error updating course:", error);
+    }
   }
-};
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Add New Course</h1>
+    <div className="max-w-5xl mx-auto p-4">
+      <Title level={3}>
+        {initialData ? "Edit Course" : "Create New Course"}
+      </Title>
 
-      <div className="space-y-4">
-        <label className="block font-medium">Course Title</label>
-        <Input
-          type="text"
-          className="w-full border px-4 py-2 rounded"
-          value={course.title}
-          onChange={(e) => setCourse({ ...course, title: e.target.value })}
-        />
+      <Form layout="vertical" onFinish={handleSubmit}>
+        <Form.Item label="Course Title" required>
+          <Input
+            value={course.title}
+            onChange={(e) => setCourse({ ...course, title: e.target.value })}
+          />
+        </Form.Item>
 
-        <label className="block font-medium">Course Description</label>
-        <textarea
-          className="w-full border px-4 py-2 rounded"
-          rows="3"
-          value={course.description}
-          onChange={(e) =>
-            setCourse({ ...course, description: e.target.value })
-          }
-        />
-      </div>
+        <Form.Item label="Course Description" required>
+          <Input.TextArea
+            rows={4}
+            value={course.description}
+            onChange={(e) =>
+              setCourse({ ...course, description: e.target.value })
+            }
+          />
+        </Form.Item>
 
-      {course.sections.map((section, index) => (
-        <div
-          key={index}
-          className="border p-4 rounded bg-gray-50 space-y-4 relative"
-        >
-          <button
-            onClick={() => removeSection(index)}
-            className="absolute top-3 right-3 text-red-600 hover:text-red-800"
+        {course?.sections?.map((section, index) => (
+          <Card
+            key={index}
+            title={`Section ${index + 1}`}
+            style={{ marginBottom: 24 }}
+            extra={
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => removeSection(index)}
+              />
+            }
           >
-            <Trash2 size={18} />
-          </button>
+            <Form.Item label="Title" required>
+              <Input
+                value={section.title}
+                onChange={(e) =>
+                  updateSection(index, "title", e.target.value)
+                }
+              />
+            </Form.Item>
 
-          <h2 className="font-semibold text-lg">Section {index + 1}</h2>
+            <Form.Item label="Content">
+              <Input.TextArea
+                rows={3}
+                value={section.content}
+                onChange={(e) =>
+                  updateSection(index, "content", e.target.value)
+                }
+              />
+            </Form.Item>
 
-          <div>
-            <label className="block font-medium">Title</label>
-            <Input
-              className="w-full border px-3 py-2 rounded"
-              value={section.title}
-              onChange={(e) =>
-                updateSection(index, "title", e.target.value)
-              }
-            />
-          </div>
+            {/* <Form.Item label="Speech Practice Text">
+              <Input
+                value={section.speechPracticeText}
+                onChange={(e) =>
+                  updateSection(index, "speechPracticeText", e.target.value)
+                }
+              />
+            </Form.Item> */}
 
-          <div>
-            <label className="block font-medium">Content</label>
-            <textarea
-              className="w-full border px-3 py-2 rounded"
-              rows={4}
-              value={section.content}
-              onChange={(e) =>
-                updateSection(index, "content", e.target.value)
-              }
-            />
-          </div>
+            <Form.Item label="Media URL">
+              <Input
+                value={section.mediaUrl}
+                onChange={(e) =>
+                  updateSection(index, "mediaUrl", e.target.value)
+                }
+              />
+            </Form.Item>
 
-          <div>
-            <label className="block font-medium">Speech Practice Text</label>
-            <Input
-              className="w-full border px-3 py-2 rounded"
-              value={section.speechPracticeText}
-              onChange={(e) =>
-                updateSection(index, "speechPracticeText", e.target.value)
-              }
-            />
-          </div>
+            <Divider>Quiz Questions</Divider>
 
-          <div>
-            <label className="block font-medium">Media URL</label>
-            <Input
-              className="w-full border px-3 py-2 rounded"
-              value={section.mediaUrl}
-              onChange={(e) =>
-                updateSection(index, "mediaUrl", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="font-semibold">Quiz Questions</h3>
             {section.quiz.map((quiz, quizIndex) => (
-              <div
+              <Card
                 key={quizIndex}
-                className="p-3 border rounded bg-white space-y-2"
+                size="small"
+                style={{ marginBottom: 16 }}
+                title={`Question ${quizIndex + 1}`}
+                extra={
+                  <Popconfirm
+                    title="Are you sure to delete this quiz question?"
+                    onConfirm={() => removeQuiz(index, quizIndex)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="link" danger className="text-red-600">
+                      Remove
+                    </Button>
+                  </Popconfirm>
+                }
               >
-                <label>Question</label>
-                <Input
-                  className="w-full border px-3 py-2 rounded"
-                  value={quiz.question}
-                  onChange={(e) =>
-                    updateQuizQuestion(index, quizIndex, "question", e.target.value)
-                  }
-                />
+                <Form.Item label="Question">
+                  <Input
+                    value={quiz.question}
+                    onChange={(e) =>
+                      updateQuizQuestion(index, quizIndex, "question", e.target.value)
+                    }
+                  />
+                </Form.Item>
 
                 {[0, 1, 2, 3].map((optIdx) => (
-                  <div key={optIdx}>
-                    <label>Option {optIdx + 1}</label>
-                    <input
-                      className="w-full border px-3 py-2 rounded"
+                  <Form.Item key={optIdx} label={`Option ${optIdx + 1}`}>
+                    <Input
                       value={quiz.options[optIdx]}
                       onChange={(e) =>
                         updateQuizOption(index, quizIndex, optIdx, e.target.value)
                       }
                     />
-                  </div>
+                  </Form.Item>
                 ))}
 
-                <label>Correct Answer (Index 0-3)</label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="3"
-                  className="w-full border px-3 py-2 rounded"
-                  value={quiz.correctAnswer}
-                  onChange={(e) =>
-                    updateQuizQuestion(
-                      index,
-                      quizIndex,
-                      "correctAnswer",
-                      parseInt(e.target.value)
-                    )
-                  }
-                />
-              </div>
+                <Form.Item label="Correct Answer">
+                  <InputNumber
+                    min={1}
+                    max={4}
+                    value={quiz.correctAnswer}
+                    onChange={(val) =>
+                      updateQuizQuestion(index, quizIndex, "correctAnswer", val)
+                    }
+                  />
+                </Form.Item>
+              </Card>
             ))}
 
-            <button
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
               onClick={() => addQuizToSection(index)}
-              className="flex items-center gap-2 text-blue-600 mt-2"
+              block
             >
-              <Plus size={18} /> Add Quiz Question
-            </button>
-          </div>
-        </div>
-      ))}
+              Add Quiz Question
+            </Button>
+          </Card>
+        ))}
 
-      <div className="flex gap-4">
-        <button
-          onClick={addSection}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          <Plus size={18} /> Add Section
-        </button>
+        <Space style={{ marginBottom: 24 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={addSection}>
+            Add Section
+          </Button>
+        </Space>
 
-        <button
-          onClick={handleSubmit}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Save Course
-        </button>
-      </div>
+        <Divider />
+
+        <Button type="primary" htmlType="submit">
+          {initialData ? "Update Course" : "Create Course"}
+        </Button>
+      </Form>
     </div>
   );
 }
