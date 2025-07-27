@@ -9,7 +9,10 @@ export const paths = {
 
     PRACTISE_SPEECH : '/speechPractise/test',
     CREATE_SPEECH_PRACTISE : '/speechPractise/create',
+    MANAGE_SPEECH_PRACTISE : '/mangeSpeechPractise',
     LIST_SPEECH_PRACTISE : '/speechPractise/list',
+
+    STUDENT_PROGRESS : '/student/viewProgress',
 
     ADMIN_USER_TABLE : '/admin/viewUsers',
 }

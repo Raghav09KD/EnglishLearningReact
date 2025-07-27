@@ -1,5 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import AllRoutes from "./Routes";
+import { MessageProvider } from "./components/MessageProvider/MessageProvider";
 
 function App() {
 
@@ -17,7 +18,9 @@ function App() {
         },
       }}
     />
-    <AllRoutes />
+    <MessageProvider>
+      <AllRoutes />
+    </MessageProvider>
   </>
   );
 }

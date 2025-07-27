@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAllCourses, getCourseById } from "../coursesHelper";
+import { Progress, Card, Typography } from "antd";
+// import moment from "moment";
+
+const { Title, Text } = Typography;
 
 export default function CourcesList() {
   const [courses, setCourses] = useState([]);
@@ -23,35 +27,39 @@ export default function CourcesList() {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold mb-6">All Courses</h1>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <Title level={2}>📚 All Courses</Title>
 
       {loading ? (
-        <p>Loading...</p>
-      ) : courses?.length === 0 ? (
-        <p className="text-gray-500">No courses found.</p>
+        <Text type="secondary">Loading...</Text>
+      ) : courses.length === 0 ? (
+        <Text type="secondary">No courses found.</Text>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {courses.map((course) => (
-            <Link to={`/courses/${course._id}`}>
-              <div
-                key={course._id}
-                className="p-5 border rounded-xl shadow bg-white hover:shadow-lg transition-all"
-
+            <Link key={course._id} to={`/courses/${course._id}`}>
+              <Card
+                hoverable
+                className="rounded-xl shadow-sm"
+                bodyStyle={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
               >
-                <h2 className="text-xl font-semibold mb-1">{course?.title}</h2>
-                <p className="text-gray-600 text-sm mb-3">
-                  {course.createdAt}...
-                </p>
+                <div className="flex-1 mr-4">
+                  <Title level={4} className="!mb-1">
+                    {course?.title}
+                  </Title>
+                  <Text type="secondary" className="text-sm">
+                    {/* Created on: {moment(course.createdAt).format("DD MMM YYYY")} */}
+                  </Text>
+                </div>
 
-
-                {/* <Link
-                to={`/admin/courses/${course._id}`}
-                className="inline-block mt-3 text-blue-600 hover:underline text-sm"
-              >
-                View / Edit →
-              </Link> */}
-              </div>
+                <Progress
+                  type="circle"
+                  percent={course?.percentage || 0}
+                  width={60}
+                  strokeColor={course.percentage === 100 ? "#52c41a" : "#1890ff"}
+                  format={(percent) => `${percent}%`}
+                />
+              </Card>
             </Link>
           ))}
         </div>

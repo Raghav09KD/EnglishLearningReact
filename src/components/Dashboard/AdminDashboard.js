@@ -157,7 +157,7 @@ const AdminDashboard = () => {
           </Link>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.LIST_SPEECH_PRACTISE}>
+          <Link to={paths.MANAGE_SPEECH_PRACTISE}>
             <Card
               hoverable
               title="View Pronunciations"

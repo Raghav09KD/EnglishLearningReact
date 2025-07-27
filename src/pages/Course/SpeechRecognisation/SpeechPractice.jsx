@@ -70,6 +70,7 @@ export default function SpeechPractice() {
   };
 
   useEffect(() => {
+    if (!text?.text || !feedback?.result?.mistakes) return;
     setSsString(createString(text?.text, feedback?.result?.mistakes));
   }, [text?.text, feedback?.result?.mistakes]);
 

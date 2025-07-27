@@ -24,7 +24,7 @@ export default function AuthNavbar() {
   return (
     <Header className="bg-white shadow-md px-8 py-4 flex justify-between items-center sticky top-0 z-50 !h-auto">
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-2 text-indigo-600 font-bold text-2xl">
+      <Link to="/dashboard" className="flex items-center gap-2 text-indigo-600 font-bold text-2xl">
         Engli<span className="text-gray-800">Learn</span>
       </Link>
 

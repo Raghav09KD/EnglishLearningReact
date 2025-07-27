@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Modal, Button, Radio } from "antd";
-import { getCourseById, getCourseSection, getCourseSectionDetails, updateCourseProgress } from "../coursesHelper";
+import { getCourseSection, getCourseSectionDetails, updateCourseProgress } from "../coursesHelper";
 import toast from "react-hot-toast";
+import { Layout, Menu, Typography, Button, Card, Tag, Divider, List, Modal, Radio,  message } from 'antd';
+import {
+  CheckCircleTwoTone,
+  LockOutlined,
+  RightOutlined,
+} from '@ant-design/icons';
 import { paths } from "../../../lib/path";
+import CommentSection from "../../../components/CommentSection/CommentSection";
+const { Sider, Content } = Layout;
+const { Title, Text, Paragraph } = Typography;
 
 export default function AdminCourseDetails() {
   const navigate = useNavigate();
@@ -15,6 +23,8 @@ export default function AdminCourseDetails() {
   console.log("🚀 ~ AdminCourseDetails ~ selectedSectionIndex:", selectedSectionIndex)
   const [quizResults, setQuizResults] = useState(null);
   const [selectedSectionDetails, setSelectedSectionDetails] = useState(null);
+
+  const isLastSection = selectedSectionIndex === allSections?.length - 1;
 
 
   useEffect(() => {
@@ -130,7 +140,7 @@ export default function AdminCourseDetails() {
         {selectedSectionDetails?.quiz?.map((quiz, qIdx) => {
           const isReviewed = !!quizResults;
           console.log("isReviewed", isReviewed)
-          const userAnswer = quizResults?.[qIdx]?.selected - 1 ;
+          const userAnswer = quizResults?.[qIdx]?.selected - 1;
           const correctAnswer = quizResults?.[qIdx]?.correct - 1;
 
           return (
@@ -183,105 +193,108 @@ export default function AdminCourseDetails() {
         })}
       </Modal>
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Sections</h2>
-        {allSections?.length > 0 && allSections?.map((s, i) => (
-          <div
-            key={i}
-            onClick={() => {
-              if (s.isAccessible) setSelectedSectionIndex(i);
-            }}
-            className={`cursor-pointer p-2 rounded mb-2 flex justify-between items-center
-      ${selectedSectionIndex === i ? "bg-blue-600 text-white" : ""}
-      ${!s.isAccessible ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"}
-    `}
-          >
-            <span>
-              {i + 1}. {s.title || "Untitled"}
-            </span>
-
-            {s?.isCompleted && (
-              <span className="text-green-600 font-bold text-sm">✓</span>
-            )}
+      <Layout style={{ minHeight: '100vh' }}>
+        {/* Sidebar */}
+        <Sider width={260} theme="light" className="shadow-sm">
+          <div className="p-4 border-b">
+            <Title level={4}>Sections</Title>
           </div>
-        ))}
-      </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto max-w-3xl mx-auto">
-        {/* Section Header */}
-        <h1 className="text-3xl font-bold mb-4">{section?.title}</h1>
+          <Menu mode="inline" selectedKeys={[`${selectedSectionIndex}`]}>
+            {allSections?.map((s, i) => {
+              const isSelected = selectedSectionIndex === i;
+              return (
+                <Menu.Item
+                  key={i}
+                  onClick={() => {
+                    if (s.isAccessible) setSelectedSectionIndex(i);
+                    else message.info("Complete previous section to unlock.");
+                  }}
+                  disabled={!s.isAccessible}
+                  icon={
+                    s.isCompleted ? (
+                      <CheckCircleTwoTone twoToneColor="#52c41a" />
+                    ) : !s.isAccessible ? (
+                      <LockOutlined />
+                    ) : null
+                  }
+                >
+                  {i + 1}. {s.title || 'Untitled'}
+                </Menu.Item>
+              );
+            })}
+          </Menu>
+        </Sider>
 
-        {/* Content */}
-        <div className="prose prose-lg text-gray-800 mb-6">
-          <p>{selectedSectionDetails?.content}</p>
-        </div>
+        {/* Main Content */}
+        <Layout>
+          <Content className="p-8 max-w-4xl ">
+            <Title level={2}>{section?.title}</Title>
 
-        {/* Media Link */}
-        {selectedSectionDetails?.mediaUrl && (
-          <div className="mb-4">
-            <span className="text-sm text-gray-600">Media Link: </span>
-            <a
-              href={section?.mediaUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-600 underline"
-            >
-              View Media
-            </a>
-          </div>
-        )}
+            <Card className="mb-4" bordered={false}>
+              <Paragraph>{selectedSectionDetails?.content}</Paragraph>
+            </Card>
 
-        {/* Speech Practice */}
-        {selectedSectionDetails?.speechPracticeText && (
-          <div className="bg-gray-50 border p-4 rounded mb-6">
-            <p className="text-gray-700 italic">
-              <strong>Speech Practice:</strong> {section?.speechPracticeText}
-            </p>
-          </div>
-        )}
-
-        <div className="mt-8 flex gap-4">
-          {/* Case 1: Quiz available and section not completed */}
-          {!allSections?.[selectedSectionIndex]?.isCompleted &&
-            selectedSectionDetails?.quiz?.length > 0 && (
-              <Button type="primary" onClick={openQuizModal}>
-                Take Quiz
-              </Button>
+            {selectedSectionDetails?.mediaUrl && (
+              <Card className="mb-4" type="inner" title="Media Link">
+                <a href={selectedSectionDetails.mediaUrl} target="_blank" rel="noreferrer">
+                  <Text type="secondary" underline>
+                    View Media
+                  </Text>
+                </a>
+              </Card>
             )}
 
-          {/* Case 2: Section is completed */}
-          {allSections?.[selectedSectionIndex]?.isCompleted && (
-            <Button
-              type="primary"
-              onClick={() => {
-                const isLastSection = selectedSectionIndex === allSections.length - 1;
-                if (isLastSection) {
-                  navigate(paths.COURSES); // change path as per your route
-                } else {
-                  setSelectedSectionIndex(selectedSectionIndex + 1);
-                }
-              }}
-            >
-              {selectedSectionIndex === allSections.length - 1 ? "Finish" : "Next"}
-            </Button>
-          )}
-
-          {/* Case 3: No quiz and not completed */}
-          {!selectedSectionDetails?.quiz?.length &&
-            !allSections?.[selectedSectionIndex]?.isCompleted && (
-              <button
-                onClick={handleSubmitQuiz}
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-              >
-                Mark as Complete & Continue
-              </button>
+            {selectedSectionDetails?.speechPracticeText && (
+              <Card className="mb-4 bg-gray-50 border">
+                <Text italic>
+                  <strong>Speech Practice: </strong>
+                  {selectedSectionDetails.speechPracticeText}
+                </Text>
+              </Card>
             )}
-        </div>
-      </main>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 mt-6">
+              {/* Case 1: Quiz available and section not completed */}
+              {!allSections?.[selectedSectionIndex]?.isCompleted &&
+                selectedSectionDetails?.quiz?.length > 0 && (
+                  <Button type="primary" onClick={openQuizModal}>
+                    Take Quiz
+                  </Button>
+                )}
+
+              {/* Case 2: Section is completed */}
+              {allSections?.[selectedSectionIndex]?.isCompleted && (
+                <Button type="primary" onClick={() => {
+                  const isLastSection = selectedSectionIndex === allSections.length - 1;
+                  if (isLastSection) {
+                    navigate(paths.COURSES); // change path as per your route
+                  } else {
+                    setSelectedSectionIndex(selectedSectionIndex + 1);
+                  }
+                }} icon={<RightOutlined />}>
+                  {isLastSection ? 'Finish' : 'Next'}
+                </Button>
+              )}
+
+              {/* Case 3: No quiz and not completed */}
+              {!selectedSectionDetails?.quiz?.length &&
+                !allSections?.[selectedSectionIndex]?.isCompleted && (
+                  <Button type="primary" onClick={handleSubmitQuiz}>
+                    Mark as Complete & Continue
+                  </Button>
+                )}
+            </div>
+
+            <Divider className="mt-10" />
+            {allSections?.[allSections?.length - 1]?.isCompleted === true && <CommentSection courseId={id} canComment={true}/>}
+          </Content>
+        </Layout>
+      </Layout>
     </div>
   );
-}
+};
 
 
 

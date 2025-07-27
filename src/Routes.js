@@ -33,6 +33,8 @@ import SpeechPracticeList from './pages/Course/SpeechRecognisation/SpeechPractis
 import AdminProgress from './pages/UserProgress/UserProgress';
 import AdminUserTable from './pages/Users/UsersList';
 import AdminCoursesTable from './pages/Course/AdminCourseTable/AdminCourses';
+import AdminSpeechPractise from './pages/SpeechPractise/AdminPractiseList';
+import EachUserProgress from './pages/UserProgress/EachUserProgress';
 
 
 const AllRoutes = () => {
@@ -115,6 +117,8 @@ const AllRoutes = () => {
 
         {/* speech practise */}
         <Route path={paths.PRACTISE_SPEECH} element={<PrivateRoute allowedRoles={["admin", 'student']}><SpeechPractice /></PrivateRoute>} />
+        <Route path={paths.MANAGE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><AdminSpeechPractise /></PrivateRoute>} />
+
         <Route path={paths.CREATE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><CreateSpeechPractice /></PrivateRoute>} />
         <Route path={paths.LIST_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", "student"]}><SpeechPracticeList /></PrivateRoute>} />
 
@@ -126,6 +130,7 @@ const AllRoutes = () => {
           <Route path="stories" element={<StoriesModule />} />
           <Route path="pronunciation" element={<PronunciationModule />} />
         </Route>
+        <Route path={paths.STUDENT_PROGRESS} element={<PrivateRoute allowedRoles={['student']}><EachUserProgress /></PrivateRoute>} />
 
         {/* Admin Auth */}
         <Route path="/admin/login" element={<AdminLogin />} />
