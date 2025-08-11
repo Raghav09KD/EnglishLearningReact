@@ -16,6 +16,7 @@ import {
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
 import { updateCourseByIdAPI } from "../../../pages/Course/coursesHelper";
+import { useGlobalMessage } from "../../MessageProvider/MessageProvider";
 
 const { Title } = Typography;
 
@@ -31,6 +32,7 @@ export default function AdminAddCourse({ onSubmit }) {
       sections: [],
     }
   );
+  const message = useGlobalMessage();
 
   const addSection = () => {
     setCourse((prev) => ({
@@ -89,7 +91,7 @@ export default function AdminAddCourse({ onSubmit }) {
       console.log(course);
       if (initialData) {
         await handleUpdateCourse(course);
-        alert("Course updated successfully!");
+        message.success("Course updated successfully!");
 
       } else {
         const res = await request({

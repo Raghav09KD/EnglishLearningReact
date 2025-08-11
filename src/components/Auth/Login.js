@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import request from '../../lib/api/request';
 import { apiPaths } from '../../lib/api/apiPath';
 import { paths } from '../../lib/path';
+import { useGlobalMessage } from '../MessageProvider/MessageProvider';
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -14,7 +15,7 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-
+    const message = useGlobalMessage();
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async e => {
@@ -26,6 +27,7 @@ const Login = () => {
         url: apiPaths.login,
         data: formData,
       });
+      console.log("🚀 ~ handleSubmit ~ res:", res)
 
       loginHandler(res, navigate);
     // const res = await axios.post('http://localhost:5000/api/auth/login', formData);
@@ -34,6 +36,8 @@ const Login = () => {
     // console.log("🚀 ~ Login ~ res:", res);
     // navigate('/student/dashboard')
   } catch (err) {
+    console.error("Login error:", err.message);
+    message.error(err?.message || 'Login failed');
     setError(err.response?.data?.message || 'Login failed');
   }
 };

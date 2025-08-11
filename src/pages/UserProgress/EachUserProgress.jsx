@@ -6,6 +6,10 @@ import { Card, Typography, Progress, Table, Collapse, Divider } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import { useLocation } from "react-router-dom";
 
+import goldMedal from "../../assets/svgs/goldMedal.svg";
+import silverMedal from "../../assets/svgs/silverMedal.svg";
+import bronzeMedal from "../../assets/svgs/bronzeMedal.svg";
+
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
 
@@ -16,6 +20,15 @@ export default function EachUserProgress() {
     console.log("🚀 ~ EachUserProgress ~ activeTab:", activeTab)
     const [courseProgress, setCourseProgress] = useState([]);
     const [speechScores, setSpeechScores] = useState([]);
+
+    const getMedalInfo = (medal) => {
+        const map = {
+            gold: { emoji: goldMedal, label: 'Gold' },
+            silver: { emoji: silverMedal, label: 'Silver' },
+            bronze: { emoji: bronzeMedal, label: 'Bronze' },
+        };
+        return map[medal] || null;
+    };
 
     const { type } = location.state || {};
     console.log("🚀 ~ EachUserProgress ~ type:", type)
@@ -116,21 +129,36 @@ export default function EachUserProgress() {
                 <TabPane tab="📘 Courses" key="courses">
                     {/* Course Progress */}
 
-                    <Card title={<Title level={4}>📘 Course Progress</Title>} bordered>
+                    <Card title={<Title level={4}>📘 Course Progress  </Title>} bordered>
                         <Collapse accordion>
-                            {courseProgress.map((course, idx) => (
-                                <Panel
-                                    header={`${course.course.title} (${course.completedSections.length} / ${course.currentSection} sections completed)`}
-                                    key={idx}
-                                >
-                                    <Table
-                                        dataSource={course.quizScores.map((q, i) => ({ ...q, key: i }))}
-                                        columns={courseColumns}
-                                        pagination={false}
-                                        size="small"
-                                    />
-                                </Panel>
-                            ))}
+                            {courseProgress.map((course, idx) => {
+                                const medalInfo = getMedalInfo(course.medal);
+                                return (
+                                    <Panel
+                                        header={
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                <span>
+                                                    {course.course.title} ({course.completedSections.length} / {course.currentSection} sections completed)
+                                                </span>
+                                                {course?.medal && (
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                                        <img src={medalInfo?.emoji} alt="" width={20} />
+                                                        <h3 className="text-xs font-semibold text-gray-500">{medalInfo?.label}</h3>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        }
+                                        key={idx}
+                                    >
+                                        <Table
+                                            dataSource={course.quizScores.map((q, i) => ({ ...q, key: i }))}
+                                            columns={courseColumns}
+                                            pagination={false}
+                                            size="small"
+                                        />
+                                    </Panel>
+                                )
+                            })}
                         </Collapse>
                     </Card>
                 </TabPane>
