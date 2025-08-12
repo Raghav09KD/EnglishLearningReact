@@ -46,7 +46,7 @@ const StudentDashboard = () => {
             </Link>
           </Col>
           <Col xs={24} sm={12} md={12} lg={8}>
-            <Link to={paths.STUDENT_PROGRESS} state={{ type : 'courses' }}>
+            <Link to={paths.STUDENT_PROGRESS} state={{ type: 'courses' }}>
               <Card
                 hoverable
                 style={{
@@ -85,7 +85,7 @@ const StudentDashboard = () => {
             </Link>
           </Col>
           <Col xs={24} sm={12} md={12} lg={8}>
-            <Link to={paths.STUDENT_PROGRESS} state={{ type : 'speech' }}>
+            <Link to={paths.STUDENT_PROGRESS} state={{ type: 'speech' }}>
               <Card
                 hoverable
                 style={{
@@ -96,6 +96,44 @@ const StudentDashboard = () => {
               >
                 <CheckCircleOutlined style={{ fontSize: 40 }} />
                 <Title level={4} className="mt-3 text-white">Completed Practices</Title>
+                <Paragraph className="text-white">Review your previous attempts and track your growth.</Paragraph>
+              </Card>
+            </Link>
+          </Col>
+        </Row>
+      </div>
+
+      <div className="mt-10">
+        <Title level={4} className="text-orange-600"> Listening Practice</Title>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12} md={12} lg={8}>
+            <Link to={paths.LISTENING_COURSE_LIST}>
+              <Card
+                hoverable
+                style={{
+                  ...colorfulCardStyle,
+                  background: "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)",
+                }}
+                bodyStyle={{ padding: "20px" }}
+              >
+                <SoundOutlined style={{ fontSize: 40 }} />
+                <Title level={4} className="mt-3 text-white">Start Listening Practice</Title>
+                <Paragraph className="text-white">Improve your pronunciation with guided listening tasks.</Paragraph>
+              </Card>
+            </Link>
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={8}>
+            <Link to={paths.STUDENT_PROGRESS} state={{ type: 'listening' }}>
+              <Card
+                hoverable
+                style={{
+                  ...colorfulCardStyle,
+                  background: "linear-gradient(135deg, #ff0844 0%, #ffb199 100%)",
+                }}
+                bodyStyle={{ padding: "20px" }}
+              >
+                <CheckCircleOutlined style={{ fontSize: 40 }} />
+                <Title level={4} className="mt-3 text-white">Completed s</Title>
                 <Paragraph className="text-white">Review your previous attempts and track your growth.</Paragraph>
               </Card>
             </Link>

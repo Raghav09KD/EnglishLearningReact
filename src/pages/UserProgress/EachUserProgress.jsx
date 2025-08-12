@@ -5,6 +5,7 @@ import { fetchProgress } from "../Course/SpeechRecognisation/speechHelper";
 import { Card, Typography, Progress, Table, Collapse, Divider } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import { useLocation } from "react-router-dom";
+import { fetchListeningProgress } from "../VoiceCourses/voiceCourseHelper";
 
 import goldMedal from "../../assets/svgs/goldMedal.svg";
 import silverMedal from "../../assets/svgs/silverMedal.svg";
@@ -20,6 +21,7 @@ export default function EachUserProgress() {
     console.log("🚀 ~ EachUserProgress ~ activeTab:", activeTab)
     const [courseProgress, setCourseProgress] = useState([]);
     const [speechScores, setSpeechScores] = useState([]);
+    const [listeningScores, setListeningScores] = useState([]);
 
     const getMedalInfo = (medal) => {
         const map = {
@@ -70,9 +72,21 @@ export default function EachUserProgress() {
 
     }
 
+    const handleFetchListeningScore = async () => {
+        try {
+            const res = await fetchListeningProgress();
+            console.log("🚀 ~ handleFetchListeningScore ~ res:", res);
+            setListeningScores(res || []);
+        } catch (error) {
+            message.error("Failed to fetch user progress. Please try again later")
+        }
+
+    }
+
     useEffect(() => {
         handleFethchUserProgress();
         handleFetchSpeechScore();
+        handleFetchListeningScore();
         // This effect can be used to fetch user-specific progress data
     }, []);
 
@@ -85,6 +99,41 @@ export default function EachUserProgress() {
     const courseColumns = [
         {
             title: "Section",
+            dataIndex: "sectionIndex",
+            key: "sectionIndex",
+            render: (val) => `Section ${val + 1}`,
+        },
+        {
+            title: "Score",
+            dataIndex: "score",
+            key: "score",
+            render: (score) => <Progress percent={score} size="small" />,
+        },
+        {
+            title: "Correct / Total",
+            dataIndex: "correctAnswers",
+            key: "correctAnswers",
+            render: (_, record) => `${record.correctAnswers} / ${record.totalQuestions}`,
+        },
+        {
+            title: "Attempted At",
+            dataIndex: "attemptedAt",
+            key: "attemptedAt",
+            render: (val) => new Date(val).toLocaleString(),
+        },
+        {
+            title: 'Actions',
+            render: (_, record) => (
+                <Button onClick={() => showQuizDetails(record.details)} type="link">
+                    View Details
+                </Button>
+            ),
+        },
+    ];
+
+    const listeningColumns = [
+        {
+            title: "title",
             dataIndex: "sectionIndex",
             key: "sectionIndex",
             render: (val) => `Section ${val + 1}`,
@@ -188,6 +237,41 @@ export default function EachUserProgress() {
                                 </Card>
                             ))
                         )}
+                    </Card>
+                </TabPane>
+
+                <TabPane tab="🎧 Listening Practice" key="listening">
+                    <Card title={<Title level={4}>🎧 Listening Practice</Title>} bordered>
+                        <Collapse accordion>
+                            {listeningScores.map((course, idx) => (
+                                <Panel header={`${course.courseTitle} — Score: ${course.score}%`} key={idx}>
+                                    {course.quizDetails.map((quiz, qIdx) => (
+                                        <div
+                                            key={qIdx}
+                                            style={{
+                                                padding: "12px",
+                                                marginBottom: "12px",
+                                                background: quiz.isCorrect ? "#e6fffb" : "#fff1f0",
+                                                border: `1px solid ${quiz.isCorrect ? "#b7eb8f" : "#ffa39e"}`,
+                                                borderRadius: "8px",
+                                            }}
+                                        >
+                                            <Text strong>{`Q${qIdx + 1}. ${quiz.question}`}</Text>
+                                            <div style={{ marginTop: "8px" }}>
+                                                <Text type={quiz.isCorrect ? "success" : "danger"}>
+                                                    ✅ Correct Answer: {quiz.options[quiz.correctAnswer - 1]}
+                                                </Text>
+                                            </div>
+                                            <div>
+                                                <Text type={quiz.isCorrect ? "success" : "danger"}>
+                                                    📝 Your Answer: {quiz.options[quiz.selectedAnswer - 1]}
+                                                </Text>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </Panel>
+                            ))}
+                        </Collapse>
                     </Card>
                 </TabPane>
             </Tabs>

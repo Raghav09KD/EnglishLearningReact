@@ -74,6 +74,7 @@ export default function AdminCourseDetails() {
   // Open quiz modal
   const openQuizModal = () => {
     setIsModalOpen(true);
+    console.log("")
   };
 
   // Close modal

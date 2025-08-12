@@ -16,6 +16,7 @@ import StoryManager from './components/Pages/Admin/StoryManager';
 import PronunciationManager from './components/Pages/Admin/PronunciationManager';
 import Home from './components/Pages/Student/Home';
 
+import AddVoiceCourses from './pages/VoiceCourses/AddVoiceCourses';
 // Student Modules & Layout
 import SidebarLayout from './components/Layout/SidebarLayout';
 import GrammarModule from './components/Pages/Student/GrammarModule';
@@ -35,6 +36,8 @@ import AdminUserTable from './pages/Users/UsersList';
 import AdminCoursesTable from './pages/Course/AdminCourseTable/AdminCourses';
 import AdminSpeechPractise from './pages/SpeechPractise/AdminPractiseList';
 import EachUserProgress from './pages/UserProgress/EachUserProgress';
+import VoiceCoursesList from './pages/VoiceCourses/ListeningCourseList';
+import VoiceCoursePlayer from './pages/VoiceCourses/ListeningCourseDetails';
 
 
 const AllRoutes = () => {
@@ -121,6 +124,12 @@ const AllRoutes = () => {
 
         <Route path={paths.CREATE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><CreateSpeechPractice /></PrivateRoute>} />
         <Route path={paths.LIST_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", "student"]}><SpeechPracticeList /></PrivateRoute>} />
+
+        {/* Voice Courses */}
+        <Route path={paths.ADD_LISTENING_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><AddVoiceCourses /></PrivateRoute>} />
+        <Route path={paths.LISTENING_COURSE_LIST} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursesList /></PrivateRoute>} />
+        <Route path={paths.LISTENING_COURSE_DETAILS} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursePlayer /></PrivateRoute>} />
+
 
         {/* Student Layout with Sidebar */}
         <Route path="/student" element={<SidebarLayout />}>
