@@ -1,6 +1,9 @@
+
 import { useState } from "react";
 import request from "../../../lib/api/request";
 import { apiPaths } from "../../../lib/api/apiPath";
+import { useNavigate } from "react-router-dom";
+
 
 import {
   Form,
@@ -22,6 +25,7 @@ const { Title } = Typography;
 
 export default function AdminAddCourse({ onSubmit }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const initialData = location.state?.course || null;
   console.log("🚀 ~ AdminAddCourse ~ location.state:", location.state)
   console.log("🚀 ~ AdminAddCourse ~ initialData:", initialData)
@@ -103,6 +107,9 @@ export default function AdminAddCourse({ onSubmit }) {
         alert("Course created successfully!");
         console.log(res.data); // Optional: log response
       }
+
+      // Redirect to admin dashboard
+      navigate('/admin');
 
     } catch (err) {
       console.error("Create course error:", err);

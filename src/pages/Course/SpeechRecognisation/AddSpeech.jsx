@@ -5,6 +5,8 @@ import TextArea from 'antd/es/input/TextArea';
 import { Button, Select } from 'antd';
 import toast from 'react-hot-toast';
 import { createSpeech } from './speechHelper';
+import { useNavigate } from "react-router-dom";
+
 
 
 const CreateSpeechPractice = () => {
@@ -12,6 +14,8 @@ const CreateSpeechPractice = () => {
   const [text, setText] = useState("");
   const [courseId, setCourseId] = useState("");
   const [courses, setCourses] = useState([]);
+
+  const navigate = useNavigate();
 
   // Fetch course list if needed
   useEffect(() => {
@@ -43,13 +47,15 @@ const CreateSpeechPractice = () => {
         text,
         ...(courseId && { courseId }),
       };
-    
+
       const res = await createSpeech(payload);
 
       toast.success("Speech practice created!");
       setTitle("");
       setText("");
       setCourseId("");
+
+      navigate('/admin');
     } catch (err) {
       console.error(err);
       toast.error("Failed to create speech practice.");

@@ -11,11 +11,10 @@ const SidebarLayout = () => {
     <div className="layout-container">
       <aside className="sidebar">
         <nav className="nav-links">
-          <NavLink to="/student/dashboard" className="link">Home</NavLink>
-          <NavLink to="/student/progress" className="link">Progress</NavLink>
-          <NavLink to="/student/badges" className="link">Vocabulary</NavLink>
-          <NavLink to="/student/quiz" className="link">Stories</NavLink>
-          <NavLink to={paths.COURSES} className="link">Courses</NavLink>
+          {/* <NavLink to="/student/dashboard" className="link">Home</NavLink> */}
+          {/* <NavLink to="/student/progress" className="link">Progress</NavLink> */}
+
+          {/* <NavLink to={paths.COURSES} className="link">Courses</NavLink> */}
         </nav>
       </aside>
 

@@ -1,7 +1,9 @@
+
 export const paths = {
     LOGIN : '/login',
+    HOME : '/',
     
-    STUDENT_DASHBOARD : '/student',
+    STUDENT_DASHBOARD : '/student/dashboard',
     ADMIN_DASHBOARD : '/admin',
     ADD_COURSE : '/addCourse',
     MANAGE_COURSE : '/manageCourse',

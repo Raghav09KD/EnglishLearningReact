@@ -13,7 +13,7 @@ export default function AuthNavbar() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    navigate(paths.LOGIN);
+    navigate(paths.HOME);
   };
 
   const getInitial = (name) => {
@@ -21,10 +21,17 @@ export default function AuthNavbar() {
     return name.trim().charAt(0).toUpperCase();
   };
 
+  const dashboardPath = user?.role === "admin"
+    ? paths.ADMIN_DASHBOARD
+    : paths.STUDENT_DASHBOARD;
+
   return (
     <Header className="bg-white shadow-md px-8 py-4 flex justify-between items-center sticky top-0 z-50 !h-auto">
-      {/* Logo */}
-      <Link to="/dashboard" className="flex items-center gap-2 text-indigo-600 font-bold text-2xl">
+      {/* Logo with dynamic redirect */}
+      <Link
+        to={dashboardPath}
+        className="flex items-center gap-2 text-indigo-600 font-bold text-2xl"
+      >
         Engli<span className="text-gray-800">Learn</span>
       </Link>
 
@@ -40,13 +47,7 @@ export default function AuthNavbar() {
         </Space>
 
         {/* Dashboard Link */}
-        <Link
-          to={
-            user?.role === "admin"
-              ? paths.ADMIN_DASHBOARD
-              : paths.STUDENT_DASHBOARD
-          }
-        >
+        <Link to={dashboardPath}>
           <Button
             type="link"
             icon={user?.role === "admin" ? <DashboardOutlined /> : <ReadOutlined />}
