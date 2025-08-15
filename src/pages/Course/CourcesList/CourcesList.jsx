@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getAllCourses, getCourseById } from "../coursesHelper";
 import { Progress, Card, Typography } from "antd";
 // import moment from "moment";
@@ -10,10 +10,16 @@ export default function CourcesList() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const levelFromQuery = searchParams.get("level");
+  const selectedLevel = location.state?.level || levelFromQuery || null;
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const data = await getAllCourses();
+        const params = selectedLevel ? { level: selectedLevel } : {};
+        const data = await getAllCourses(params);
         console.log("🚀 ~ fetchCourses ~ data:", data)
         setCourses(data);
       } catch (err) {
@@ -24,7 +30,7 @@ export default function CourcesList() {
     };
 
     fetchCourses();
-  }, []);
+  }, [selectedLevel]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">

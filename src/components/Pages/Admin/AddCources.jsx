@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import request from "../../../lib/api/request";
 import { apiPaths } from "../../../lib/api/apiPath";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   Form,
@@ -15,9 +13,9 @@ import {
   Divider,
   InputNumber,
   Popconfirm,
+  Select,
 } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
-import { useLocation } from "react-router-dom";
 import { updateCourseByIdAPI } from "../../../pages/Course/coursesHelper";
 import { useGlobalMessage } from "../../MessageProvider/MessageProvider";
 
@@ -27,15 +25,16 @@ export default function AdminAddCourse({ onSubmit }) {
   const location = useLocation();
   const navigate = useNavigate();
   const initialData = location.state?.course || null;
-  console.log("🚀 ~ AdminAddCourse ~ location.state:", location.state)
-  console.log("🚀 ~ AdminAddCourse ~ initialData:", initialData)
+
   const [course, setCourse] = useState(
     initialData || {
       title: "",
       description: "",
+      level: "easy", 
       sections: [],
     }
   );
+
   const message = useGlobalMessage();
 
   const addSection = () => {
@@ -90,49 +89,43 @@ export default function AdminAddCourse({ onSubmit }) {
     setCourse({ ...course, sections: updated });
   };
 
-  const handleSubmit = async () => {
-    try {
-      console.log(course);
-      if (initialData) {
-        await handleUpdateCourse(course);
-        message.success("Course updated successfully!");
-
-      } else {
-        const res = await request({
-          method: "post",
-          url: apiPaths.createCourse,
-          data: course,
-          auth: true, // or false if public
-        });
-        alert("Course created successfully!");
-        console.log(res.data); // Optional: log response
-      }
-
-      // Redirect to admin dashboard
-      navigate('/admin');
-
-    } catch (err) {
-      console.error("Create course error:", err);
-      alert("Error creating course.");
-    }
-  };
-
   const removeQuiz = (sectionIndex, quizIndex) => {
     const updatedSections = [...course.sections];
     updatedSections[sectionIndex].quiz.splice(quizIndex, 1);
     setCourse({ ...course, sections: updatedSections });
   };
 
-
   const handleUpdateCourse = async (updateCourse) => {
     try {
       const res = await updateCourseByIdAPI(updateCourse?._id, updateCourse);
       console.log("🚀 ~ handleUpdateCourse ~ res:", res);
-      // You can add logic to update the course in the state or notify the user
     } catch (error) {
       throw new Error("Error updating course:", error);
     }
-  }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      console.log(course);
+      if (initialData) {
+        await handleUpdateCourse(course);
+        message.success("Course updated successfully!");
+      } else {
+        const res = await request({
+          method: "post",
+          url: apiPaths.createCourse,
+          data: course,
+          auth: true,
+        });
+        alert("Course created successfully!");
+        console.log(res.data);
+      }
+      navigate("/admin");
+    } catch (err) {
+      console.error("Create course error:", err);
+      alert("Error creating course.");
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-4">
@@ -156,6 +149,18 @@ export default function AdminAddCourse({ onSubmit }) {
               setCourse({ ...course, description: e.target.value })
             }
           />
+        </Form.Item>
+
+        <Form.Item label="Course Level" required>
+          <Select
+            value={course.level}
+            onChange={(value) => setCourse({ ...course, level: value })}
+            placeholder="Select course level"
+          >
+            <Select.Option value="easy">Easy</Select.Option>
+            <Select.Option value="medium">Medium</Select.Option>
+            <Select.Option value="hard">Hard</Select.Option>
+          </Select>
         </Form.Item>
 
         {course?.sections?.map((section, index) => (
@@ -191,15 +196,6 @@ export default function AdminAddCourse({ onSubmit }) {
               />
             </Form.Item>
 
-            {/* <Form.Item label="Speech Practice Text">
-              <Input
-                value={section.speechPracticeText}
-                onChange={(e) =>
-                  updateSection(index, "speechPracticeText", e.target.value)
-                }
-              />
-            </Form.Item> */}
-
             <Form.Item label="Media URL">
               <Input
                 value={section.mediaUrl}
@@ -234,7 +230,12 @@ export default function AdminAddCourse({ onSubmit }) {
                   <Input
                     value={quiz.question}
                     onChange={(e) =>
-                      updateQuizQuestion(index, quizIndex, "question", e.target.value)
+                      updateQuizQuestion(
+                        index,
+                        quizIndex,
+                        "question",
+                        e.target.value
+                      )
                     }
                   />
                 </Form.Item>
@@ -244,7 +245,12 @@ export default function AdminAddCourse({ onSubmit }) {
                     <Input
                       value={quiz.options[optIdx]}
                       onChange={(e) =>
-                        updateQuizOption(index, quizIndex, optIdx, e.target.value)
+                        updateQuizOption(
+                          index,
+                          quizIndex,
+                          optIdx,
+                          e.target.value
+                        )
                       }
                     />
                   </Form.Item>
@@ -256,7 +262,12 @@ export default function AdminAddCourse({ onSubmit }) {
                     max={4}
                     value={quiz.correctAnswer}
                     onChange={(val) =>
-                      updateQuizQuestion(index, quizIndex, "correctAnswer", val)
+                      updateQuizQuestion(
+                        index,
+                        quizIndex,
+                        "correctAnswer",
+                        val
+                      )
                     }
                   />
                 </Form.Item>

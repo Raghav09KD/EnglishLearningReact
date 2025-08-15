@@ -124,7 +124,6 @@ const Register = () => {
             required
           />
 
-          {/* Password with Font Awesome eye icon */}
           <div style={passwordFieldStyle}>
             <input
               type={showPassword ? 'text' : 'password'}
