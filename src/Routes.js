@@ -8,12 +8,10 @@ import StudentDashboard from './components/Dashboard/StudentDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import AdminLogin from './components/Auth/Admin/AdminLogin';
 import AdminRegister from './components/Auth/Admin/AdminRegister';
-import AdminLayout from './components/Layout/AdminLayout ';
 import Home from './components/Pages/Student/Home';
 
 import AddVoiceCourses from './pages/VoiceCourses/AddVoiceCourses';
 // Student Modules & Layout
-import SidebarLayout from './components/Layout/SidebarLayout';
 import AdminAddCourse from './components/Pages/Admin/AddCources';
 import CourcesList from './pages/Course/CourcesList/CourcesList';
 import CourseDetails from './pages/Course/CourseDetails/CourseDetials';
@@ -123,39 +121,12 @@ const AllRoutes = () => {
 
 
         {/* Student Layout with Sidebar */}
-        <Route path="/student" >
-          <Route path="dashboard" element={<StudentDashboard />} />
-        </Route>
         <Route path={paths.STUDENT_PROGRESS} element={<PrivateRoute allowedRoles={['student']}><EachUserProgress /></PrivateRoute>} />
 
         {/* Admin Auth */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path="/admin/Viewprogress" element={<PrivateRoute allowedRoles={['admin']}><AdminProgress /></PrivateRoute>} />
-
-
-        {/* Admin Dashboard */}
-        <Route
-          path={paths.ADMIN_DASHBOARD}
-          element={
-            <PrivateRoute allowedRoles={["admin"]}>
-              <AdminLayout>
-                {/* <AdminNavbar /> */}
-                <AdminDashboard />
-              </AdminLayout>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path={paths.ADMIN_DASHBOARD}
-          element={
-            <AdminLayout>
-              {/* <AdminNavbar /> */}
-              <AdminDashboard />
-            </AdminLayout>
-          }
-        />
 
 
 

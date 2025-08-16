@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getAllCourses, getCourseById } from "../coursesHelper";
-import { Progress, Card, Typography } from "antd";
+import { Progress, Card, Typography,Row, Col } from "antd";
 // import moment from "moment";
 
 const { Title, Text } = Typography;
@@ -33,42 +33,53 @@ export default function CourcesList() {
   }, [selectedLevel]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <Title level={2}>📚 All Courses</Title>
+   <div className="px-6 py-8 w-full">
+      <div className="mb-8 flex justify-between items-center">
+        <Title level={2} className="!mb-0">
+           All Courses
+        </Title>
+        <Text type="secondary">{courses.length} total</Text>
+      </div>
 
       {loading ? (
         <Text type="secondary">Loading...</Text>
       ) : courses.length === 0 ? (
         <Text type="secondary">No courses found.</Text>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Row gutter={[24, 24]}>
           {courses.map((course) => (
-            <Link key={course._id} to={`/courses/${course._id}`}>
-              <Card
-                hoverable
-                className="rounded-xl shadow-sm"
-                bodyStyle={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
-              >
-                <div className="flex-1 mr-4">
-                  <Title level={4} className="!mb-1">
-                    {course?.title}
-                  </Title>
-                  <Text type="secondary" className="text-sm">
-                    {/* Created on: {moment(course.createdAt).format("DD MMM YYYY")} */}
-                  </Text>
-                </div>
+            <Col xs={24} sm={12} lg={8} xl={6} key={course._id}>
+              <Link to={`/courses/${course._id}`}>
+                <Card
+                  hoverable
+                  className="rounded-2xl shadow-md h-full flex flex-col justify-between"
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div>
+                    <Title level={4} className="!mb-2 text-gray-800">
+                      {course?.title}
+                    </Title>
+                    <Text type="secondary" className="text-sm">
+                      Progress overview
+                    </Text>
+                  </div>
 
-                <Progress
-                  type="circle"
-                  percent={course?.percentage || 0}
-                  width={60}
-                  strokeColor={course.percentage === 100 ? "#52c41a" : "#1890ff"}
-                  format={(percent) => `${percent}%`}
-                />
-              </Card>
-            </Link>
+                  <div className="flex justify-end mt-4">
+                    <Progress
+                      type="circle"
+                      percent={course?.percentage || 0}
+                      width={70}
+                      strokeColor={
+                        course.percentage === 100 ? "#52c41a" : "#1890ff"
+                      }
+                      format={(percent) => `${percent}%`}
+                    />
+                  </div>
+                </Card>
+              </Link>
+            </Col>
           ))}
-        </div>
+        </Row>
       )}
     </div>
   );

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Input from '../../../components/ui/Input';
-import TextArea from 'antd/es/input/TextArea';
-import { Button, Select } from 'antd';
+import { Input, Button, Typography, Card, Form } from "antd";
 import toast from 'react-hot-toast';
 import { createSpeech } from './speechHelper';
 import { useNavigate } from "react-router-dom";
 
+const { TextArea } = Input;
+const { Title } = Typography;
 
 
 const CreateSpeechPractice = () => {
@@ -63,41 +62,58 @@ const CreateSpeechPractice = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto pt-10 bg-white p-6 rounded-2xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">🗣️ Create Speech Practice</h2>
-
-      <Input
-        type="text"
-        placeholder="Practice Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="mb-4"
-      />
-
-      <TextArea
-        placeholder="Enter paragraph or sentence for pronunciation practice..."
-        rows={6}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className="mb-4"
-      />
-
-      {/* <Select
-        onValueChange={setCourseId}
-        value={courseId}
-        className="mb-4"
+    <div className="max-w-2xl mx-auto px-4 py-10">
+      <Card
+        className="rounded-2xl shadow-md"
+        bodyStyle={{ padding: "24px" }}
       >
-        <SelectItem value="">Optional - Link to Course</SelectItem>
-        {courses.map((c) => (
-          <SelectItem key={c._id} value={c._id}>
-            {c.title}
-          </SelectItem>
-        ))}
-      </Select> */}
+        <Title level={4} className="mb-6 text-gray-800">
+           Create Speech Practice
+        </Title>
 
-      <Button onClick={handleSubmit} className="w-full">
-        Create Practice
-      </Button>
+        <Form layout="vertical" onFinish={handleSubmit}>
+          {/* Title Input */}
+          <Form.Item
+            label="Practice Title"
+            rules={[{ required: true, message: "Please enter a title" }]}
+          >
+            <Input
+              placeholder="Enter practice title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              size="large"
+            />
+          </Form.Item>
+
+          {/* Paragraph Input */}
+          <Form.Item
+            label="Practice Text"
+            rules={[
+              { required: true, message: "Please enter text for practice" },
+            ]}
+          >
+            <TextArea
+              placeholder="Enter paragraph or sentence for pronunciation practice..."
+              rows={6}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              size="large"
+            />
+          </Form.Item>
+
+          {/* Submit Button */}
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              className="w-full rounded-lg"
+            >
+              Create Practice
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

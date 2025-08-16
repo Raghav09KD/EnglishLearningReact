@@ -1,10 +1,10 @@
 import { Card, Row, Col, Typography } from 'antd';
 import {
   BookOutlined,
-  SoundOutlined,
   CheckCircleOutlined,
-  PlayCircleOutlined,
-} from '@ant-design/icons';
+  SoundOutlined,
+  AudioOutlined
+} from "@ant-design/icons";
 import { Link } from 'react-router-dom';
 import { paths } from '../../lib/path';
 
@@ -28,201 +28,65 @@ const cardBoxStyle = {
 };
 
 const StudentDashboard = () => {
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+  const user = localStorage.getItem('user')
+  const modules = [
+    {
+      title: "Start a New Course",
+      desc: "Begin a new course and track your progress.",
+      icon: <BookOutlined className="text-blue-600 text-3xl" />,
+      link: paths.COURSES,
+    },
+
+    {
+      title: "Start Speech Practice",
+      desc: "Improve your pronunciation with guided tasks.",
+      icon: <SoundOutlined className="text-orange-500 text-3xl" />,
+      link: paths.LIST_SPEECH_PRACTISE,
+    },
+
+    {
+      title: "Start Listening Practice",
+      desc: "Sharpen comprehension with listening tasks.",
+      icon: <AudioOutlined className="text-indigo-500 text-3xl" />,
+      link: paths.LISTENING_COURSE_LIST
+    },
+
+    {
+      title: "Completed Sessions",
+      desc: "Review past sessions and measure growth.",
+      icon: <CheckCircleOutlined className="text-green-600 text-3xl" />,
+      link: paths.STUDENT_PROGRESS,
+    },
+  ];
 
   return (
-    <div className="p-6">
-      <Title level={2} className="text-blue-800">
-        🎓 Welcome, {user?.name || 'Student'}!
-      </Title>
-      <Paragraph className="text-gray-600">
-        Select a module to begin learning:
-      </Paragraph>
-
-      {/* Courses Section (2 per row) */}
-      <Title level={4} className="text-orange-600">📚 Courses</Title>
-      <div style={{ display: "flex", gap: "60px" }}>
-
-        <Link to={paths.COURSES}>
-          <Card
-            hoverable
-            style={{
-              ...colorfulCardStyle,
-              background: "linear-gradient(135deg, #f1a63cff 0%, #f5e19dff 100%)",
-              width: 300,
-              height: 210,
-              margin: 0,
-            }}
-            bodyStyle={{ padding: 20 }}
-          >
-            <BookOutlined style={{ fontSize: 26, color: "#fff" }} />
-            <Title level={4} className="text-white">Start a New Course</Title>
-            <Paragraph className="text-white">Begin a new course and track your learning journey</Paragraph>
-          </Card>
-        </Link>
-
-        <Link to={paths.STUDENT_PROGRESS} state={{ type: 'courses' }}>
-          <Card
-            hoverable
-            style={{
-              ...colorfulCardStyle,
-              background: "linear-gradient(135deg, #6096f3ff 0%, #82deeeff 100%)",
-              width: 300,
-              height: 210,
-              margin: 0,
-            }}
-            bodyStyle={{ padding: 16 }}
-          >
-            <CheckCircleOutlined style={{ fontSize: 26, color: "#fff" }} />
-            <Title level={4} className="text-white">Completed Courses</Title>
-            <Paragraph className="text-white">Check what you've completed and how far you’ve come.</Paragraph>
-          </Card>
-        </Link>
-
-      </div>
-
-      {/* Speech Practice */}
-      <div className="mt-10">
-        <Title level={4} className="text-orange-600">🗣️ Speech Practice</Title>
-        <div style={{ display: "flex", gap: "60px" }}>
-          <Link to={paths.LIST_SPEECH_PRACTISE}>
-            <Card
-              hoverable
-              style={{
-                ...colorfulCardStyle,
-                background: "linear-gradient(135deg, #6096f3ff 0%, #82deeeff 100%)", 
-                width: 300,
-                height: 210,
-                margin: 0,
-              }}
-              bodyStyle={{ padding: 16 }}
-            >
-              <SoundOutlined style={{ fontSize: 26, color: "#fff" }} />
-              <Title level={4} className="text-white">Start Speech Practice</Title>
-              <Paragraph className="text-white">Improve your pronunciation with guided speech tasks.</Paragraph>
-            </Card>
-          </Link>
-
-          <Link to={paths.STUDENT_PROGRESS} state={{ type: 'speech' }}>
-            <Card
-              hoverable
-              style={{
-                ...colorfulCardStyle,
-                background: "linear-gradient(135deg, #f098a6ff 0%, #a870e0ff 100%)", 
-                width: 300,
-                height: 210,
-                margin: 0,
-              }}
-              bodyStyle={{ padding: 16 }}
-            >
-              <CheckCircleOutlined style={{ fontSize: 26, color: "#fff" }} />
-              <Title level={4} className="text-white">Completed Practices</Title>
-              <Paragraph className="text-white">Review your previous attempts and track your growth.</Paragraph>
-            </Card>
-          </Link>
-        </div>
-      </div>
-
-      {/* Listening Practice */}
-      <div className="mt-10">
-        <Title level={4} className="text-orange-600">🎧 Listening Practice</Title>
-        <div style={{ display: "flex", gap: "60px" }}>
-          <Link to={paths.LISTENING_COURSE_LIST}>
-            <Card
-              hoverable
-              style={{
-                ...colorfulCardStyle,
-                background: "linear-gradient(135deg, #f098a6ff 0%, #a870e0ff 100%)", // yellow
-                width: 300,
-                height: 210,
-                margin: 0,
-              }}
-              bodyStyle={{ padding: 16 }}
-            >
-              <CheckCircleOutlined style={{ fontSize: 26, color: "#fff" }} />
-              <Title level={4} className="text-white">Start Listening Practice</Title>
-              <Paragraph className="text-white">Improve your pronunciation with guided listening tasks.</Paragraph>
-            </Card>
-          </Link>
-
-          <Link to={paths.STUDENT_PROGRESS} state={{ type: 'listening' }}>
-            <Card
-              hoverable
-              style={{
-                ...colorfulCardStyle,
-                background: "linear-gradient(135deg, #f1a63cff 0%, #f5e19dff 100%)", // red
-                width: 300,
-                height: 210,
-                margin: 0,
-              }}
-              bodyStyle={{ padding: 16 }}
-            >
-              <CheckCircleOutlined style={{ fontSize: 26, color: "#fff" }} />
-              <Title level={4} className="text-white">Completed Listening</Title>
-              <Paragraph className="text-white">Review your previous attempts and track your growth.</Paragraph>
-            </Card>
-          </Link>
-        </div>
-      </div>
-
-
-
-      {/* Level Selection Section */}
-      <div className="mt-10">
-        <Title level={4} className="text-green-600">
-          📊 Choose Your Level
+    <div className="p-6 w-full">
+      {/* Welcome Section */}
+      <div className="mb-8">
+        <Title level={2} className="text-gray-800">
+          Welcome, {user?.name || "Student"}
         </Title>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '50px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Link to="/courses?level=easy">
-            <img
-              src="https://ichef.bbci.co.uk/images/ic/624xn/p0klbn3v.jpg"
-              alt="Easy"
-              style={{
-                width: '220px',
-                height: '200px',
-                borderRadius: '15px',
-                cursor: 'pointer',
-                objectFit: 'cover',
-              }}
-            />
-          </Link>
-
-          <Link to="/courses?level=medium">
-            <img
-              src="https://ichef.bbci.co.uk/images/ic/1248xn/p0klbn4w.jpg"
-              alt="Medium"
-              style={{
-                width: '220px',
-                height: '200px',
-                borderRadius: '15px',
-                cursor: 'pointer',
-                objectFit: 'cover',
-              }}
-            />
-          </Link>
-
-          <Link to={paths.COURSES} state={{ level: 'hard' }}>
-            <img
-              src="https://ichef.bbci.co.uk/images/ic/1248xn/p0klbn5v.jpg"
-              alt="Hard"
-              style={{
-                width: '220px',
-                height: '200px',
-                borderRadius: '15px',
-                cursor: 'pointer',
-                objectFit: 'cover',
-              }}
-            />
-          </Link>
-        </div>
+        <Paragraph className="text-gray-600 text-base">
+          Select a module to begin your learning journey.
+        </Paragraph>
       </div>
+
+      {/* Unified Grid Section */}
+      <Row gutter={[16, 16]}>
+        {modules.map((m, i) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={i}>
+            <Link to={m.link}>
+              <Card hoverable className="shadow-sm rounded-xl h-full">
+                {m.icon}
+                <Title level={5} className="mt-4 mb-1 text-gray-800">
+                  {m.title}
+                </Title>
+                <Paragraph className="text-gray-600 text-sm">{m.desc}</Paragraph>
+              </Card>
+            </Link>
+          </Col>
+        ))}
+      </Row>
     </div>
   );
 };

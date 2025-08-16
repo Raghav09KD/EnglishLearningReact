@@ -1,219 +1,199 @@
-import React, { useState, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import './Register.css';
+import React, { useState, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../../context/AuthContext";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { Input, Select, Button, Typography, message } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import OTPModal from "../OtpModal";
+
+const { Title, Text } = Typography;
+const { Option } = Select;
 
 const Register = () => {
   const { login } = useContext(AuthContext);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const [passwordStrength, setPasswordStrength] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "student", // default role
+  });
+
+  const [passwordStrength, setPasswordStrength] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const [isConfirmTouched, setIsConfirmTouched] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const navigate = useNavigate();
-
   const evaluatePasswordStrength = (password) => {
-    const strong = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    const strong =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
     const medium = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-    if (strong.test(password)) return 'strong';
-    if (medium.test(password)) return 'medium';
-    if (password.length > 0) return 'weak';
-    return '';
+    if (strong.test(password)) return "strong";
+    if (medium.test(password)) return "medium";
+    if (password.length > 0) return "weak";
+    return "";
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedData = { ...formData, [name]: value };
     setFormData(updatedData);
 
-    if (name === 'password') {
-      const strength = evaluatePasswordStrength(value);
-      setPasswordStrength(strength);
+    if (name === "password") {
+      setPasswordStrength(evaluatePasswordStrength(value));
     }
 
-    if (name === 'confirmPassword') {
-      setIsConfirmTouched(true);
-    }
-
-    const doMatch = updatedData.password === updatedData.confirmPassword;
+    const doMatch =
+      updatedData.password === updatedData.confirmPassword &&
+      updatedData.confirmPassword !== "";
     setPasswordMatch(doMatch);
 
-    const strongPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    const strongPassword =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
     const isValid =
       updatedData.name.trim() &&
       updatedData.email.trim() &&
       strongPassword.test(updatedData.password) &&
-      doMatch;
+      doMatch &&
+      updatedData.role;
 
     setIsFormValid(isValid);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      await axios.post('http://localhost:5000/api/auth/register', formData);
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      await axios.post("http://localhost:5000/api/auth/register", formData);
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
         email: formData.email,
         password: formData.password,
       });
-      localStorage.setItem('user', JSON.stringify(res.data));
-      login(res.data.user, res.data.token);
-      navigate('/student/dashboard');
+      if (res) {
+        setIsModalOpen(true)
+
+      }
+      // localStorage.setItem("user", JSON.stringify(res.data));
+      // login(res.data.user, res.data.token);
+      // navigate("/student/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || "Registration failed");
     }
   };
 
   const getStrengthColor = () => {
-    if (passwordStrength === 'strong') return '#5e995eff';
-    if (passwordStrength === 'medium') return '#ffd580';
-    if (passwordStrength === 'weak') return '#ff7f7f';
-    return '';
-  };
-
-  const passwordFieldStyle = {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center'
-  };
-
-  const eyeIconStyle = {
-    position: 'absolute',
-    right: '16px',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '16px',
-    color: '#888'
+    if (passwordStrength === "strong") return "text-green-500";
+    if (passwordStrength === "medium") return "text-yellow-500";
+    if (passwordStrength === "weak") return "text-red-500";
+    return "";
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="title">Sign Up</h2>
+ <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <Title level={3} className="text-center !mb-6 !text-gray-800">
+          Create Your Account
+        </Title>
 
-        {error && <p className="error-text">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="form">
-          <input
-            type="text"
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Full Name */}
+          <Input
             name="name"
-            placeholder="Your Name"
+            placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
-            className="input-field"
-            required
+            size="large"
           />
-          <input
-            type="email"
+
+          {/* Email */}
+          <Input
             name="email"
+            type="email"
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
-            className="input-field"
-            required
+            size="large"
           />
 
-          <div style={passwordFieldStyle}>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="input-field"
-              required
-              style={{ width: '100%' }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(prev => !prev)}
-              style={eyeIconStyle}
-              tabIndex={-1}
-            >
-              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-            </button>
-          </div>
+          {/* Role */}
+          <Select
+            value={formData.role}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, role: value }))
+            }
+            size="large"
+            className="w-full"
+          >
+            <Option value="student">Student</Option>
+            <Option value="teacher">Teacher</Option>
+          </Select>
 
-          {/* Password strength */}
+          {/* Password */}
+          <Input.Password
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            size="large"
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+          />
           {formData.password && (
-            <>
-              <p style={{
-                fontSize: '14px',
-                fontWeight: '500',
-                color: getStrengthColor(),
-                marginTop: '-8px',
-                marginBottom: '-12px'
-              }}>
-                Password strength: {passwordStrength}
-              </p>
-
-              {(passwordStrength === 'weak' || passwordStrength === 'medium') && (
-                <p style={{
-                  fontSize: '12px',
-                  color: '#a0aec0',
-                  // marginTop: '-2px',
-                  marginBottom: '0px'
-                }}>
-                  Password should contain uppercase letters, numbers, symbols and be at least 8 characters long.
-                </p>
-              )}
-            </>
+            <p className={`text-sm font-medium ${getStrengthColor()}`}>
+              Password strength: {passwordStrength}
+            </p>
           )}
 
-          {/* Confirm password with Font Awesome eye icon */}
-          <div style={passwordFieldStyle}>
-            <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="input-field"
-              required
-              style={{ width: '100%' }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(prev => !prev)}
-              style={eyeIconStyle}
-              tabIndex={-1}
-            >
-              <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
-            </button>
-          </div>
-
-          {isConfirmTouched && !passwordMatch && (
-            <p className="error-text">Passwords do not match</p>
+          {/* Confirm Password */}
+          <Input.Password
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            size="large"
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+          />
+          {!passwordMatch && (
+            <p className="text-red-500 text-sm">Passwords do not match</p>
           )}
 
-          <button
-            type="submit"
-            className="btn-primary"
+          {/* Submit */}
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            size="large"
             disabled={!isFormValid}
-            style={{
-              backgroundColor: isFormValid ? undefined : '#ccc',
-              cursor: isFormValid ? 'pointer' : 'not-allowed'
-            }}
           >
             Register
-          </button>
+          </Button>
         </form>
 
-        <p className="login-redirect">
-          Already have an account? <Link to="/login">Login</Link>
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-500 hover:underline">
+            Login
+          </Link>
         </p>
       </div>
+
+      {/* OTP Modal */}
+      <OTPModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        email={formData.email}
+      />
     </div>
   );
 };

@@ -1,219 +1,120 @@
-
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import './AdminDashboard.css';
-import { Card, Col, Row, Button, Typography } from "antd";
-import { PlusCircleOutlined, BookOutlined, UserOutlined, SoundOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import {
-  BookOpen,
   FileText,
-  Volume2,
-  PlusCircle,
+  ListChecks,
+  Mic,
+  Headphones,
+  Users,
+  Mic2,
 } from "lucide-react";
+import { paths } from "../../lib/path";
 
-import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
-import { Link } from 'react-router-dom';
-import { paths } from '../../lib/path';
-import request from '../../lib/api/request';
-
-Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
-
-const { Title } = Typography;
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    grammarCount: 0,
-    vocabCount: 0,
-    storyCount: 0,
-    pronunciationCount: 0,
-  });
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const [grammarRes, vocabRes, storyRes, pronunciationRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/grammar'),
-        axios.get('http://localhost:5000/api/vocabulary'),
-        axios.get('http://localhost:5000/api/stories'),
-        axios.get('http://localhost:5000/api/pronunciation'),
-      ]);
-
-      setStats({
-        grammarCount: grammarRes.data.length,
-        vocabCount: vocabRes.data.length,
-        storyCount: storyRes.data.length,
-        pronunciationCount: pronunciationRes.data.length,
-      });
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
-  const chartData = {
-    labels: ['Grammar', 'Vocabulary', 'Stories', 'Pronunciation'],
-    datasets: [
-      {
-        label: 'Content Count',
-        data: [
-          stats.grammarCount,
-          stats.vocabCount,
-          stats.storyCount,
-          stats.pronunciationCount,
-        ],
-        backgroundColor: ['#4a90e2', '#7ed6df', '#f6b93b', '#9b59b6'], // Muted pastels
-        borderRadius: 12,
-        barThickness: 40,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#fff',
-        titleColor: '#2f3640',
-        bodyColor: '#2f3640',
-        borderColor: '#dcdde1',
-        borderWidth: 1,
-        padding: 10,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-          color: '#636e72',
-          font: { size: 14 },
-        },
-        grid: {
-          color: '#ecf0f1',
-          borderDash: [4, 4],
-        },
-      },
-      x: {
-        ticks: {
-          color: '#636e72',
-          font: { size: 14 },
-        },
-        grid: {
-          display: false,
-        },
-      },
-    },
-    responsive: true,
-    maintainAspectRatio: false,
-  };
-
-
-
   return (
-    <div className="p-4">
-      <Title level={2}>Admin Dashboard</Title>
+    <div className="p-8 space-y-10 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Admin Dashboard
+        </h1>
+      </div>
 
-      {/* Content Section */}
-      <Title level={4} className="mt-6">📚 Course Management</Title>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.ADD_COURSE}>
-            <Card
-              hoverable
-              title="Add Course"
-              bordered
-              actions={[<PlusCircleOutlined key="add" />]}
-            >
-              {/* <p>Total Courses: {stats.courseCount ?? 0}</p> */}
-            </Card>
-          </Link>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.MANAGE_COURSE}>
-            <Card
-              hoverable
-              title="Manage Courses"
-              bordered
-              actions={[<BookOutlined key="manage" />]}
-            >
-              {/* <p>Active Courses: {stats.activeCourseCount ?? 0}</p> */}
-            </Card>
-          </Link>
-        </Col>
-      </Row>
+      {/* Quick Actions */}
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Courses */}
+          <DashboardCard
+            title="Add Course"
+            icon={<FileText size={24} />}
+            color="blue"
+            link={paths.ADD_COURSE}
+          />
+          <DashboardCard
+            title="Manage Courses"
+            icon={<ListChecks size={24} />}
+            color="green"
+            link={paths.MANAGE_COURSE}
+          />
 
-      {/* Pronunciation Section */}
-      <Title level={4} className="mt-6">🗣️ Pronunciation Practice</Title>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.CREATE_SPEECH_PRACTISE}>
-            <Card
-              hoverable
-              title="Add Pronunciation"
-              actions={[<PlusCircleOutlined key="add-speech" />]}
-            >
-              {/* <p>Total Sets: {stats.pronunciationCount ?? 0}</p> */}
-            </Card>
-          </Link>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.MANAGE_SPEECH_PRACTISE}>
-            <Card
-              hoverable
-              title="View Pronunciations"
-              actions={[<SoundOutlined key="view-speech" />]}
-            >
-              <p>Practice Sets Available</p>
-            </Card>
-          </Link>
-        </Col>
-      </Row>
+          {/* Speech Practice */}
+          <DashboardCard
+            title="Add Speech Practice"
+            icon={<Mic size={24} />}
+            color="purple"
+            link={paths.CREATE_SPEECH_PRACTISE}
+          />
+          <DashboardCard
+            title="Manage Speech Practice"
+            icon={<Mic2 size={24} />}
+            color="indigo"
+            link={paths.MANAGE_SPEECH_PRACTISE}
+          />
+
+          {/* Listening Practice */}
+          <DashboardCard
+            title="Add Listening Practice"
+            icon={<Headphones size={24} />}
+            color="orange"
+            link={paths.ADD_LISTENING_PRACTISE}
+          />
+          <DashboardCard
+            title="Manage Listening Practice"
+            icon={<ListChecks size={24} />}
+            color="teal"
+            link="/listening/manage"
+          />
+        </div>
+      </section>
 
       {/* User Management */}
-      <Title level={4} className="mt-6">👥 User Management</Title>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Link to={paths.ADMIN_USER_TABLE}>
-            <Card
-              hoverable
-              title="View All Users"
-              actions={[<UserOutlined key="users" />]}
-            >
-              <p>Manage students and their progress</p>
-            </Card>
-          </Link>
-        </Col>
-      </Row>
+      <section>
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          User Management
+        </h2>
+        <Link to={paths.ADMIN_USER_TABLE}>
+          <div className="flex items-center gap-4 p-5 border rounded-lg bg-white shadow-sm hover:shadow-md hover:bg-indigo-50 transition duration-200 cursor-pointer">
+            <Users className="text-indigo-600" size={26} />
+            <div>
+              <h3 className="text-base font-medium text-gray-900">
+                View All Users
+              </h3>
+              <p className="text-sm text-gray-500">
+                Manage students and monitor their progress
+              </p>
+            </div>
+          </div>
+        </Link>
+      </section>
     </div>
   );
 };
 
-function DashboardCard({ title, icon, value, color = "blue", link }) {
+// Reusable Dashboard Card
+function DashboardCard({ title, icon, color, link }) {
   const colorMap = {
-    blue: "bg-blue-100 text-blue-800 border-blue-300",
-    green: "bg-green-100 text-green-800 border-green-300",
-    orange: "bg-orange-100 text-orange-800 border-orange-300",
-    purple: "bg-purple-100 text-purple-800 border-purple-300",
-    red: "bg-red-100 text-red-800 border-red-300",
+    blue: "bg-blue-100 text-blue-700",
+    green: "bg-green-100 text-green-700",
+    orange: "bg-orange-100 text-orange-700",
+    purple: "bg-purple-100 text-purple-700",
+    indigo: "bg-indigo-100 text-indigo-700",
+    teal: "bg-teal-100 text-teal-700",
   };
 
   return (
     <Link to={link}>
-      <div
-        className={`border rounded-xl p-5 shadow-sm hover:shadow-md transition-all ${colorMap[color]} cursor-pointer`}
-      >
-        <div className="flex items-center gap-3">
-          <div className="text-2xl">{icon}</div>
-          <div>
-            <h4 className="text-lg font-semibold">{title}</h4>
-            <p className="text-xl font-bold mt-1">{value}</p>
-          </div>
+      <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition duration-200 p-6 flex items-center gap-5 cursor-pointer">
+        <div className={`p-3 rounded-lg ${colorMap[color]}`}>
+          {icon}
+        </div>
+        <div>
+          <h4 className="text-base font-medium text-gray-900">{title}</h4>
         </div>
       </div>
     </Link>
   );
 }
-
 
 export default AdminDashboard;

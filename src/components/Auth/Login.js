@@ -1,108 +1,124 @@
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import request from "../../lib/api/request";
+import { apiPaths } from "../../lib/api/apiPath";
+import { useGlobalMessage } from "../MessageProvider/MessageProvider";
+import { Form, Input, Button, Typography, Card } from "antd";
 
-import React, { useState, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import './Login.css';
-import toast from 'react-hot-toast';
-import request from '../../lib/api/request';
-import { apiPaths } from '../../lib/api/apiPath';
-import { paths } from '../../lib/path';
-import { useGlobalMessage } from '../MessageProvider/MessageProvider';
+const { Title, Text } = Typography;
 
 const Login = () => {
   const { login } = useContext(AuthContext);
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const message = useGlobalMessage();
 
-    const message = useGlobalMessage();
-  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError(null);
+  const loginHandler = (res) => {
+    const { user, token } = res || {};
+    if (!user || !token) {
+      toast.error("Invalid login response");
+      return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
+    toast.success(`Welcome, ${user.name}`);
+    navigate("/dashboard");
+  };
+
+  const handleSubmit = async (values) => {
+    setLoading(true);
     try {
       const res = await request({
         method: "post",
         url: apiPaths.login,
-        data: formData,
+        data: values,
       });
-      console.log("🚀 ~ handleSubmit ~ res:", res)
+      loginHandler(res);
+    } catch (err) {
+      console.error("Login error:", err.message);
+      message.error(err?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      loginHandler(res, navigate);
-    // const res = await axios.post('http://localhost:5000/api/auth/login', formData);
-    // login(res.data.user, res.data.token);
-    // localStorage.setItem('user', JSON.stringify(res.data));
-    // console.log("🚀 ~ Login ~ res:", res);
-    // navigate('/student/dashboard')
-  } catch (err) {
-    console.error("Login error:", err.message);
-    message.error(err?.message || 'Login failed');
-    setError(err.response?.data?.message || 'Login failed');
-  }
-};
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4">
+      <Card
+        className="shadow-lg rounded-2xl w-full max-w-md"
+        style={{ padding: "32px" }}
+      >
+        {/* Title */}
+        <Title
+          level={3}
+          className="!text-gray-800 text-center !mb-2"
+          style={{ fontSize: 22 }}
+        >
+          Welcome Back
+        </Title>
+        <Text type="secondary" className="block text-center mb-6">
+          Please enter your credentials to continue
+        </Text>
 
-const loginHandler = (res, navigate) => {
-  const { user, token } = res || {};
+        {/* Login Form */}
+        <Form
+          layout="vertical"
+          onFinish={handleSubmit}
+          requiredMark={false}
+          className="space-y-4"
+        >
+          {/* Email */}
+          <Form.Item
+            label={<span className="text-sm font-medium">Email Address</span>}
+            name="email"
+            rules={[
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Enter a valid email" },
+            ]}
+          >
+            <Input size="large" placeholder="you@example.com" />
+          </Form.Item>
 
-  if (!user || !token) {
-    toast.error("Invalid login response");
-    return;
-  }
+          {/* Password */}
+          <Form.Item
+            label={<span className="text-sm font-medium">Password</span>}
+            name="password"
+            rules={[{ required: true, message: "Please enter your password" }]}
+          >
+            <Input.Password size="large" placeholder="••••••••" />
+          </Form.Item>
 
-  // Clear any previous auth
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
+          {/* Submit Button */}
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              block
+            >
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
 
-  // Save new auth
-  localStorage.setItem("user", JSON.stringify(user));
-  localStorage.setItem("token", token);
-
-  toast.success(`Welcome, ${user.name}`);
-
-  // Navigate based on role
-  if (user.role === "admin") {
-    navigate(paths.ADMIN_DASHBOARD);
-  } else if (user.role === "student") {
-    navigate(paths.STUDENT_DASHBOARD);
-  } else {
-    toast.error("Unknown role. Contact support.");
-  }
-};
-
-return (
-  <div className="auth-container">
-    <div className="auth-card">
-      <h2 className="title">Login</h2>
-      {error && <p className="error-text">{error}</p>}
-      <form onSubmit={handleSubmit} className="form">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email Address"
-          onChange={handleChange}
-          value={formData.email}
-          className="input-field"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          value={formData.password}
-          className="input-field"
-          required
-        />
-        <button type="submit" className="btn-primary">Login</button>
-      </form>
-      <p className="login-redirect">
-        Don’t have an account? <Link to="/register">Register</Link>
-      </p>
+        {/* Redirect */}
+        <div className="text-center mt-6">
+          <Text className="text-sm text-gray-500">
+            Don’t have an account?{" "}
+            <Link to="/register" className="text-indigo-500 hover:underline">
+              Register
+            </Link>
+          </Text>
+        </div>
+      </Card>
     </div>
-  </div>
-);
+  );
 };
 
 export default Login;

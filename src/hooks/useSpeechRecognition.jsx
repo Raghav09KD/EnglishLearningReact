@@ -48,6 +48,7 @@ export const useSpeechRecognition = (onResult) => {
     if (recognitionRef.current && isListening) {
       setIsListening(false);
       recognitionRef.current.stop();
+      recognitionRef.current = null;
     }
   };
 

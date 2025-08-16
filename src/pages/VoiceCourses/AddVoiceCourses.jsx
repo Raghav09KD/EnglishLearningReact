@@ -82,19 +82,30 @@ export default function VoicePracticeForm() {
 
 
     return (
-        <Card title="Create Voice Practice Course" style={{ maxWidth: 800, margin: "auto" }}>
+        <div className="py-10">
+
+     
+        <Card
+            title="Create Voice Practice Course"
+            style={{ maxWidth: 720, margin: "auto" }}
+            bordered={false}
+        >
             <Form layout="vertical" onFinish={handleSubmit}>
                 {/* Title */}
                 <Form.Item
-                    label="Title"
+                    label="Course Title"
                     name="title"
                     rules={[{ required: true, message: "Please enter the course title" }]}
                 >
-                    <Input placeholder="Enter course title" />
+                    <Input placeholder="Enter course title" size="large" />
                 </Form.Item>
 
                 {/* MP3 Upload */}
-                <Form.Item label="MP3 File" required>
+                <Form.Item
+                    label="Upload MP3 File"
+                    required
+                    tooltip="Upload the audio file for this course"
+                >
                     <Upload
                         accept=".mp3"
                         maxCount={1}
@@ -108,22 +119,23 @@ export default function VoicePracticeForm() {
                     </Upload>
                 </Form.Item>
 
-                {/* Quizzes */}
-                <Divider>Quiz Questions</Divider>
+                {/* Quiz Section */}
+                <Divider orientation="left">Quiz Questions</Divider>
                 {quizList.map((quiz, quizIndex) => (
                     <Card
                         key={quizIndex}
                         size="small"
                         style={{ marginBottom: 16 }}
+                        type="inner"
                         title={`Question ${quizIndex + 1}`}
                         extra={
                             <Popconfirm
-                                title="Are you sure to delete this quiz question?"
+                                title="Delete this question?"
                                 onConfirm={() => removeQuiz(quizIndex)}
                                 okText="Yes"
                                 cancelText="No"
                             >
-                                <Button type="link" danger className="text-red-600">
+                                <Button type="link" danger>
                                     Remove
                                 </Button>
                             </Popconfirm>
@@ -138,10 +150,10 @@ export default function VoicePracticeForm() {
                             />
                         </Form.Item>
 
-                        {[0, 1, 2, 3].map((optIdx) => (
+                        {quiz.options.map((option, optIdx) => (
                             <Form.Item key={optIdx} label={`Option ${optIdx + 1}`}>
                                 <Input
-                                    value={quiz.options[optIdx]}
+                                    value={option}
                                     onChange={(e) =>
                                         updateQuizOption(quizIndex, optIdx, e.target.value)
                                     }
@@ -167,17 +179,25 @@ export default function VoicePracticeForm() {
                     icon={<PlusOutlined />}
                     onClick={addQuiz}
                     block
+                    style={{ marginBottom: 20 }}
                 >
                     Add Quiz Question
                 </Button>
 
                 {/* Submit */}
-                <Form.Item style={{ marginTop: 20 }}>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                <Form.Item>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loading}
+                        size="large"
+                        block
+                    >
                         Create Course
                     </Button>
                 </Form.Item>
             </Form>
         </Card>
+           </div>
     );
 }

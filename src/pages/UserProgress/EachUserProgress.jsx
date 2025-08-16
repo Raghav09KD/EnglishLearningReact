@@ -243,9 +243,9 @@ export default function EachUserProgress() {
                 <TabPane tab="🎧 Listening Practice" key="listening">
                     <Card title={<Title level={4}>🎧 Listening Practice</Title>} bordered>
                         <Collapse accordion>
-                            {listeningScores.map((course, idx) => (
-                                <Panel header={`${course.courseTitle} — Score: ${course.score}%`} key={idx}>
-                                    {course.quizDetails.map((quiz, qIdx) => (
+                            {listeningScores?.map((course, idx) => (
+                                <Panel header={`${course?.courseTitle || 'NA'} — Score: ${course?.score}%`} key={idx}>
+                                    {Array.isArray(course?.quizDetails) && course.quizDetails.map((quiz, qIdx) => (
                                         <div
                                             key={qIdx}
                                             style={{
@@ -258,13 +258,13 @@ export default function EachUserProgress() {
                                         >
                                             <Text strong>{`Q${qIdx + 1}. ${quiz.question}`}</Text>
                                             <div style={{ marginTop: "8px" }}>
-                                                <Text type={quiz.isCorrect ? "success" : "danger"}>
-                                                    ✅ Correct Answer: {quiz.options[quiz.correctAnswer - 1]}
+                                                <Text type={quiz?.isCorrect ? "success" : "danger"}>
+                                                    ✅ Correct Answer: {quiz?.options[quiz?.correctAnswer - 1]}
                                                 </Text>
                                             </div>
                                             <div>
                                                 <Text type={quiz.isCorrect ? "success" : "danger"}>
-                                                    📝 Your Answer: {quiz.options[quiz.selectedAnswer - 1]}
+                                                    📝 Your Answer: {quiz?.options[quiz?.selectedAnswer - 1]}
                                                 </Text>
                                             </div>
                                         </div>

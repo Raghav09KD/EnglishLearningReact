@@ -1,9 +1,11 @@
-import { Table, Tag, Button, Tooltip, Space, message } from "antd";
+import { Table, Tag, Button, Tooltip, Space, message, Progress, Typography } from "antd";
 import { EditOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { getAllCourses, getCourseById, updateCourseByIdAPI } from "../coursesHelper";
 import { paths } from '../../../lib/path';
 import { useNavigate } from "react-router-dom";
+
+const { Title } = Typography;
 
 export default function AdminCoursesTable() {
   const navigate = useNavigate();
@@ -58,6 +60,8 @@ export default function AdminCoursesTable() {
       dataIndex: "title",
       key: "title",
       sorter: (a, b) => a.title.localeCompare(b.title),
+      ellipsis: true,
+      responsive: ["xs", "sm", "md", "lg"], // always shown
     },
     {
       title: "Status",
@@ -73,46 +77,64 @@ export default function AdminCoursesTable() {
         { text: "Disabled", value: false },
       ],
       onFilter: (value, record) => record.isActive === value,
+      align: "center",
+      responsive: ["sm", "md", "lg"],
     },
     {
-      title: "Total Sections",
+      title: "Sections",
       dataIndex: "totalCount",
       key: "totalCount",
       align: "center",
+      responsive: ["md", "lg"],
     },
     {
-      title: "Completed Count",
+      title: "Completed",
       dataIndex: "completedCount",
       key: "completedCount",
       align: "center",
+      responsive: ["md", "lg"],
     },
     {
       title: "Progress",
       dataIndex: "percentage",
       key: "percentage",
-      render: (percentage) => `${percentage}%`,
       align: "center",
       sorter: (a, b) => a.percentage - b.percentage,
+      render: (percentage) => (
+        <Progress
+          percent={percentage}
+          size="small"
+          status={percentage === 100 ? "success" : "active"}
+        />
+      ),
+      responsive: ["sm", "md", "lg"],
     },
     {
       title: "Actions",
       key: "actions",
+      align: "center",
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small" wrap>
           <Tooltip title="Edit course details">
             <Button
               type="default"
               icon={<EditOutlined />}
+              size="small"
               onClick={() => handleEditCourse(record)}
             >
               Edit
             </Button>
           </Tooltip>
-          <Tooltip title={record.isActive ? "Disable course" : "Activate course"}>
+          <Tooltip
+            title={record.isActive ? "Disable course" : "Activate course"}
+          >
             <Button
-              danger={!record.isActive}
+              danger={record.isActive}
               type={record.isActive ? "default" : "primary"}
-              icon={record.isActive ? <StopOutlined /> : <CheckCircleOutlined />}
+              icon={
+                record.isActive ? <StopOutlined /> : <CheckCircleOutlined />
+              }
+              size="small"
               onClick={() => handleToggleActive(record)}
             >
               {record.isActive ? "Disable" : "Activate"}
@@ -120,18 +142,23 @@ export default function AdminCoursesTable() {
           </Tooltip>
         </Space>
       ),
+      responsive: ["xs", "sm", "md", "lg"],
     },
   ];
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md">
-      <h2 className="text-xl font-semibold mb-4">All Courses</h2>
+    <div className="p-4 bg-white rounded-xl shadow-md w-full overflow-x-auto">
+      <Title level={4} className="mb-4 text-gray-800">
+        All Courses
+      </Title>
       <Table
         columns={columns}
         dataSource={courses}
         rowKey="_id"
-        pagination={{ pageSize: 6 }}
+        pagination={{ pageSize: 6, showSizeChanger: false }}
         bordered
+        size="middle"
+        scroll={{ x: true }} // makes it responsive for small screens
       />
     </div>
   );

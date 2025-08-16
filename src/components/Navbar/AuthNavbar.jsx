@@ -1,6 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
-import { Layout, Avatar, Button, Typography, Space } from "antd";
-import { LogoutOutlined, DashboardOutlined, ReadOutlined } from "@ant-design/icons";
+import { Layout, Avatar, Button, Typography, Space, Dropdown, Menu } from "antd";
+import { LogoutOutlined, DashboardOutlined, ReadOutlined, MenuOutlined } from "@ant-design/icons";
+import { useState } from "react";
 import { paths } from "../../lib/path";
 
 const { Header } = Layout;
@@ -9,6 +10,7 @@ const { Text } = Typography;
 export default function AuthNavbar() {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -21,28 +23,50 @@ export default function AuthNavbar() {
     return name.trim().charAt(0).toUpperCase();
   };
 
-  const dashboardPath = user?.role === "admin"
-    ? paths.ADMIN_DASHBOARD
-    : paths.STUDENT_DASHBOARD;
+  const dashboardPath =
+    user?.role === "admin" ? paths.ADMIN_DASHBOARD : paths.STUDENT_DASHBOARD;
+
+  // Mobile dropdown menu
+  const mobileMenu = (
+    <Menu
+      items={[
+        {
+          key: "dashboard",
+          label: (
+            <Link to={dashboardPath}>
+              {user?.role === "admin" ? "Admin Panel" : "My Course"}
+            </Link>
+          ),
+          icon: user?.role === "admin" ? <DashboardOutlined /> : <ReadOutlined />,
+        },
+        {
+          key: "logout",
+          label: <span onClick={handleLogout}>Logout</span>,
+          icon: <LogoutOutlined />,
+        },
+      ]}
+    />
+  );
 
   return (
-    <Header className="bg-white shadow-md px-8 py-4 flex justify-between items-center sticky top-0 z-50 !h-auto">
-      {/* Logo with dynamic redirect */}
+    <Header className="bg-white shadow-sm px-6 py-3 flex justify-between items-center sticky top-0 z-50 !h-auto">
+      {/* Logo */}
       <Link
-        to={dashboardPath}
-        className="flex items-center gap-2 text-indigo-600 font-bold text-2xl"
+        to={"/dashboard"}
+        className="flex items-center gap-1 text-indigo-600 font-bold text-xl sm:text-2xl"
       >
         Engli<span className="text-gray-800">Learn</span>
       </Link>
 
-      <Space size="large" className="items-center">
+      {/* Desktop Menu */}
+      <div className="hidden md:flex items-center gap-6">
         {/* Avatar + Greeting */}
         <Space size="small" className="items-center">
           <Avatar className="bg-indigo-500" size="small">
             {getInitial(user?.name)}
           </Avatar>
-          <Text type="secondary" className="text-sm">
-            Hi, <span className="font-medium text-gray-700">{user?.name}</span>
+          <Text className="text-sm text-gray-600">
+            Hi, <span className="font-medium text-gray-800">{user?.name}</span>
           </Text>
         </Space>
 
@@ -50,7 +74,9 @@ export default function AuthNavbar() {
         <Link to={dashboardPath}>
           <Button
             type="link"
-            icon={user?.role === "admin" ? <DashboardOutlined /> : <ReadOutlined />}
+            icon={
+              user?.role === "admin" ? <DashboardOutlined /> : <ReadOutlined />
+            }
             className="text-indigo-600 hover:text-indigo-800 font-medium text-sm"
           >
             {user?.role === "admin" ? "Admin Panel" : "My Course"}
@@ -66,7 +92,25 @@ export default function AuthNavbar() {
         >
           Logout
         </Button>
-      </Space>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className="md:hidden flex items-center">
+        <Dropdown
+          overlay={mobileMenu}
+          trigger={["click"]}
+          placement="bottomRight"
+          arrow
+          onOpenChange={setMobileOpen}
+          open={mobileOpen}
+        >
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            className="text-gray-700"
+          />
+        </Dropdown>
+      </div>
     </Header>
   );
 }
