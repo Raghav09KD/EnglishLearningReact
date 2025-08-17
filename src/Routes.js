@@ -27,6 +27,7 @@ import AdminSpeechPractise from './pages/SpeechPractise/AdminPractiseList';
 import EachUserProgress from './pages/UserProgress/EachUserProgress';
 import VoiceCoursesList from './pages/VoiceCourses/ListeningCourseList';
 import VoiceCoursePlayer from './pages/VoiceCourses/ListeningCourseDetails';
+import TeacherStudentManagement from './pages/Users/UsrManagent';
 
 
 const AllRoutes = () => {
@@ -122,6 +123,9 @@ const AllRoutes = () => {
 
         {/* Student Layout with Sidebar */}
         <Route path={paths.STUDENT_PROGRESS} element={<PrivateRoute allowedRoles={['student']}><EachUserProgress /></PrivateRoute>} />
+
+        <Route path={paths.USER_MANAGEMENT} element={<PrivateRoute allowedRoles={['admin']}><TeacherStudentManagement /></PrivateRoute>} />
+
 
         {/* Admin Auth */}
         <Route path="/admin/login" element={<AdminLogin />} />

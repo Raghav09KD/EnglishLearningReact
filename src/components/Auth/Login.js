@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -6,6 +6,7 @@ import request from "../../lib/api/request";
 import { apiPaths } from "../../lib/api/apiPath";
 import { useGlobalMessage } from "../MessageProvider/MessageProvider";
 import { Form, Input, Button, Typography, Card } from "antd";
+import OTPModal from "../OtpModal";
 
 const { Title, Text } = Typography;
 
@@ -13,8 +14,12 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const message = useGlobalMessage();
+  const [form] = Form.useForm();
+  const [modalEmail, setModalEmail] = useState("");
+
 
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const loginHandler = (res) => {
     const { user, token } = res || {};
@@ -30,6 +35,7 @@ const Login = () => {
     navigate("/dashboard");
   };
 
+
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
@@ -38,8 +44,16 @@ const Login = () => {
         url: apiPaths.login,
         data: values,
       });
+      console.log(res)
+
       loginHandler(res);
     } catch (err) {
+      if (err?.statusCode === 'VRYFYEML') {
+        setModalEmail(values.email);
+        setIsModalOpen(true)
+        message.error(err?.message);
+        return;
+      }
       console.error("Login error:", err.message);
       message.error(err?.message || "Login failed");
     } finally {
@@ -117,6 +131,12 @@ const Login = () => {
           </Text>
         </div>
       </Card>
+      <OTPModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        email={modalEmail}
+        nextAction={handleSubmit}
+      />
     </div>
   );
 };

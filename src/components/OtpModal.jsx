@@ -1,10 +1,16 @@
 import React, { useState } from "react";
-import { Modal, Button, message } from "antd";
+import { Modal, Button } from "antd";
 import OTPInput from "react-otp-input";
+import { useNavigate } from "react-router-dom";
+import { paths } from "../lib/path";
+import { useGlobalMessage } from "./MessageProvider/MessageProvider";
 
-export default function OTPModal({ isOpen, onClose, email }) {
+export default function OTPModal({ isOpen, onClose, email, nextAction }) {
+    const navigate = useNavigate();
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const message = useGlobalMessage();
 
     const handleVerify = async () => {
         if (otp.length !== 6) {
@@ -27,12 +33,17 @@ export default function OTPModal({ isOpen, onClose, email }) {
                 // setMessage("✅ Verification successful!");
                 setTimeout(() => {
                     onClose();
-                    window.location.reload(); // optional
+                    message.success("Email verified successfully. Please log in again.")
+                    if (nextAction) nextAction();
+                    else navigate(paths.LOGIN);
+
+                    // window.location.reload(); // optional
                 }, 1000);
             } else {
                 // setMessage(`❌ ${data.message}`);
             }
         } catch (err) {
+            message(err || 'Incorrect OTP')
             // setMessage("❌ Something went wrong. Try again.");
         } finally {
             setLoading(false);
@@ -44,7 +55,7 @@ export default function OTPModal({ isOpen, onClose, email }) {
     return (
         <Modal
             open={isOpen}
-            onCancel={() => { }}
+            onCancel={onClose}
             footer={null}
             centered
             width={400}
@@ -64,9 +75,17 @@ export default function OTPModal({ isOpen, onClose, email }) {
                     value={otp}
                     onChange={setOtp}
                     numInputs={6}
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => <input {...props} />}
+                    renderSeparator={<span className="mx-2 text-gray-400">-</span>}
+                    renderInput={(props) => (
+                        <input
+                            {...props}
+                            className="w-30 h-12 text-center text-lg font-semibold border border-gray-300 rounded-lg
+                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-400 outline-none
+                 transition duration-150 ease-in-out"
+                        />
+                    )}
                 />
+
             </div>
 
             {/* Buttons */}

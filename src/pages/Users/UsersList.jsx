@@ -17,7 +17,7 @@ const [drawerOpen, setDrawerOpen] = useState(false);
             setLoading(true);
             const res = await request({
                 method: "get",
-                url: "/user/fetchAll",
+                url: "/admin/fetchAllUsers",
                 auth: true
             });
             setUsers(res);

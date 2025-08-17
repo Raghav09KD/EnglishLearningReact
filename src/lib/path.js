@@ -20,5 +20,7 @@ export const paths = {
 
     STUDENT_PROGRESS : '/student/viewProgress',
 
+    USER_MANAGEMENT : '/mangeUsers',
+
     ADMIN_USER_TABLE : '/admin/viewUsers',
 }
