@@ -540,14 +540,8 @@ export default function AdminCourseDetails() {
             )}
 
             <Divider className="mt-10" />
-            {allSections?.[allSections?.length - 1]?.isCompleted === true && (
-              <div>
-                {/* CommentSection would go here */}
-                <Card>
-                  <Text>Comments section would appear here when course is completed</Text>
-                </Card>
-              </div>
-            )}
+            <Divider className="mt-10" />
+            {allSections?.[allSections?.length - 1]?.isCompleted === true && <CommentSection courseId={id} canComment={true} />}
           </Content>
         </Layout>
       </Layout>
