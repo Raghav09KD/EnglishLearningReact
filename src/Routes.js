@@ -29,7 +29,7 @@ import VoiceCoursesList from './pages/VoiceCourses/ListeningCourseList';
 import VoiceCoursePlayer from './pages/VoiceCourses/ListeningCourseDetails';
 import TeacherStudentManagement from './pages/Users/UsrManagent';
 import { AuthContext } from './context/AuthContext';
-
+import ResetPassword from './components/ResetPassword';
 
 const AllRoutes = () => {
   const { user, logout } = useContext(AuthContext);
@@ -84,6 +84,10 @@ const AllRoutes = () => {
       <Route element={<Layout />}>
         {/* Home Route */}
         <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
+
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+
         <Route path={paths.ADD_COURSE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminAddCourse /></PrivateRoute>} />
         {/* Student Auth */}
         <Route path={paths.LOGIN} element={<PublicRoute><Login /></PublicRoute>} />
