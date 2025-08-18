@@ -18,16 +18,19 @@ import {
   Divider,
   Modal,
   Radio,
-  message,
+  Drawer,
   Progress
 } from "antd";
 import {
   CheckCircleTwoTone,
   LockOutlined,
+  CloseOutlined,
+  MenuOutlined,
   RightOutlined
 } from "@ant-design/icons";
 import { paths } from "../../../lib/path";
 import CommentSection from "../../../components/CommentSection/CommentSection";
+import { useGlobalMessage } from "../../../components/MessageProvider/MessageProvider";
 
 const { Sider, Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -41,6 +44,21 @@ export default function AdminCourseDetails() {
   const [selectedSectionIndex, setSelectedSectionIndex] = useState(0);
   const [quizResults, setQuizResults] = useState(null);
   const [selectedSectionDetails, setSelectedSectionDetails] = useState(null);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const message = useGlobalMessage();
+
+  // Check for mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const isLastSection = selectedSectionIndex === allSections?.length - 1;
 
@@ -146,9 +164,49 @@ export default function AdminCourseDetails() {
   const totalSections = allSections.length > 1 ? allSections.length - 1 : 0;
   const progressPercent = totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
 
+  // Sidebar Component
+  const SidebarContent = () => (
+    <>
+      <div className="p-4 border-b flex justify-between items-center">
+        <Title level={4} className="m-0">Sections</Title>
+        {isMobile && (
+          <Button
+            type="text"
+            icon={<CloseOutlined />}
+            onClick={() => setSidebarVisible(false)}
+          />
+        )}
+      </div>
+
+      <Menu mode="inline" selectedKeys={[`${selectedSectionIndex}`]}>
+        {allSections?.map((s, i) => (
+          <Menu.Item
+            key={i}
+            onClick={() => {
+              if (s.isAccessible) setSelectedSectionIndex(i);
+              else message.info("Complete previous section to unlock.");
+            }}
+            disabled={!s.isAccessible}
+            icon={
+              s.isOverview
+                ? null
+                : s.isCompleted
+                  ? <CheckCircleTwoTone twoToneColor="#52c41a" />
+                  : !s.isAccessible
+                    ? <LockOutlined />
+                    : null
+            }
+          >
+            {s.isOverview ? s.title : `${i}. ${s.title || "Untitled"}`}
+          </Menu.Item>
+        ))}
+      </Menu>
+    </>
+  );
+
   return (
     <div className="flex h-screen">
-      {/* Quiz modal */}
+      {/* Quiz Modal */}
       <Modal
         title="Quiz"
         open={isModalOpen}
@@ -156,6 +214,8 @@ export default function AdminCourseDetails() {
         onCancel={closeModal}
         okText={quizResults ? "Close" : "Submit Quiz"}
         cancelText="Cancel"
+        width={isMobile ? "90%" : "600px"}
+        style={isMobile ? { top: 20 } : {}}
       >
         {selectedSectionDetails?.quiz?.map((quiz, qIdx) => {
           const isReviewed = !!quizResults;
@@ -175,14 +235,11 @@ export default function AdminCourseDetails() {
                     const isUserWrong =
                       oIdx === userAnswer && userAnswer !== correctAnswer;
 
-                    let optionStyle =
-                      "bg-gray-100 border border-gray-300";
+                    let optionStyle = "bg-gray-100 border border-gray-300";
                     if (isCorrect)
-                      optionStyle =
-                        "bg-green-100 border border-green-400 text-green-700 font-semibold";
+                      optionStyle = "bg-green-100 border border-green-400 text-green-700 font-semibold";
                     if (isUserWrong)
-                      optionStyle =
-                        "bg-red-100 border border-red-400 text-red-700 font-semibold";
+                      optionStyle = "bg-red-100 border border-red-400 text-red-700 font-semibold";
 
                     return (
                       <div
@@ -206,14 +263,12 @@ export default function AdminCourseDetails() {
 
                 {!isReviewed && (
                   <Radio.Group
-                    onChange={(e) =>
-                      onSelectAnswer(qIdx, e.target.value)
-                    }
+                    onChange={(e) => onSelectAnswer(qIdx, e.target.value)}
                     value={selectedAnswers[qIdx]}
                     className="flex flex-col mt-2"
                   >
                     {quiz.options.map((opt, oIdx) => (
-                      <Radio key={oIdx} value={oIdx}>
+                      <Radio key={oIdx} value={oIdx} className="mb-2">
                         {opt}
                       </Radio>
                     ))}
@@ -226,50 +281,71 @@ export default function AdminCourseDetails() {
       </Modal>
 
       <Layout style={{ height: "auto" }}>
-        {/* Sidebar */}
-        <Sider width={260} theme="light" className="shadow-sm" style={{
-          position: "fixed",
-          left: 0,
-          height: "100vh",
-          overflowY: "auto",
-          background: "#fff",
-          zIndex: 10,
-        }} >
-          <div className="p-4 border-b">
-            <Title level={4}>Sections</Title>
-          </div>
+        {/* Desktop Sidebar */}
+        {!isMobile && (
+          <Sider
+            width={260}
+            theme="light"
+            className="shadow-sm"
+            style={{
+              position: "fixed",
+              left: 0,
+              height: "100vh",
+              overflowY: "auto",
+              background: "#fff",
+              zIndex: 10,
+            }}
+          >
+            <SidebarContent />
+          </Sider>
+        )}
 
-          <Menu mode="inline" selectedKeys={[`${selectedSectionIndex}`]}>
-            {allSections?.map((s, i) => (
-              <Menu.Item
-                key={i}
-                onClick={() => {
-                  if (s.isAccessible) setSelectedSectionIndex(i);
-                  else message.info("Complete previous section to unlock.");
-                }}
-                disabled={!s.isAccessible}
-                icon={
-                  s.isOverview
-                    ? null
-                    : s.isCompleted
-                      ? <CheckCircleTwoTone twoToneColor="#52c41a" />
-                      : !s.isAccessible
-                        ? <LockOutlined />
-                        : null
-                }
-              >
-                {s.isOverview ? s.title : `${i}. ${s.title || "Untitled"}`}
-              </Menu.Item>
-            ))}
-          </Menu>
-        </Sider>
+        {/* Mobile Drawer */}
+        {isMobile && (
+          <Drawer
+            title={null}
+            placement="left"
+            onClose={() => setSidebarVisible(false)}
+            open={sidebarVisible}
+            width={280}
+            style={{ padding: 0 }}
+            bodyStyle={{ padding: 0 }}
+            closable={false}
+          >
+            <SidebarContent />
+          </Drawer>
+        )}
 
         {/* Main Content */}
-        <Layout style={{ marginLeft: 260, background: "#f5f5f5" }}>
-          <Content className="p-8 max-w-4xl " style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
+        <Layout style={{
+          marginLeft: isMobile ? 0 : 260,
+          background: "#f5f5f5"
+        }}>
+          <Content
+            className={`${isMobile ? 'p-4' : 'p-8'} max-w-4xl`}
+            style={{
+              padding: isMobile ? "16px" : "24px",
+              background: "#f5f5f5",
+              minHeight: "100vh"
+            }}
+          >
+            {/* Mobile Menu Button */}
+            {isMobile && (
+              <div className="mb-4">
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setSidebarVisible(true)}
+                  className="mb-4"
+                >
+                  Sections
+                </Button>
+              </div>
+            )}
+
             {allSections[selectedSectionIndex]?.isOverview ? (
               <>
-                <Title level={2}>{courseDetails?.title}</Title>
+                <Title level={isMobile ? 3 : 2}>{courseDetails?.title}</Title>
                 <Paragraph>{courseDetails?.description}</Paragraph>
                 <Tag color="blue" style={{ textTransform: "capitalize" }}>
                   Level: {courseDetails?.level}
@@ -277,7 +353,9 @@ export default function AdminCourseDetails() {
 
                 {/* Progress Bar */}
                 <div style={{ marginTop: 24 }}>
-                  <Text strong>{completedSections} of {totalSections} sections completed</Text>
+                  <Text strong>
+                    {completedSections} of {totalSections} sections completed
+                  </Text>
                   <Progress
                     percent={progressPercent}
                     status="active"
@@ -302,6 +380,7 @@ export default function AdminCourseDetails() {
                       }
                     }}
                     icon={<RightOutlined />}
+                    size={isMobile ? "middle" : "large"}
                   >
                     Start Course
                   </Button>
@@ -310,10 +389,14 @@ export default function AdminCourseDetails() {
             ) : (
               <>
                 <div style={{ marginBottom: "1rem" }}>
-                  <Text style={{ fontSize: "1.5rem", color: "rgba(0, 0, 0, 0.77)", display: "block" }}>
+                  <Text style={{
+                    fontSize: isMobile ? "1.2rem" : "1.5rem",
+                    color: "rgba(0, 0, 0, 0.77)",
+                    display: "block"
+                  }}>
                     Section {selectedSectionIndex}
                   </Text>
-                  <Title level={3} style={{ marginTop: "0.5rem" }}>
+                  <Title level={isMobile ? 4 : 3} style={{ marginTop: "0.5rem" }}>
                     {allSections[selectedSectionIndex]?.title}
                   </Title>
                 </div>
@@ -325,7 +408,6 @@ export default function AdminCourseDetails() {
                 {selectedSectionDetails?.mediaUrl && (
                   <Card className="mb-4" type="inner" title="Media">
                     {/\.(jpg|jpeg|png|gif|webp)$/i.test(selectedSectionDetails.mediaUrl) ? (
-                      // Image display
                       <img
                         src={selectedSectionDetails.mediaUrl}
                         alt="Section Media"
@@ -336,7 +418,6 @@ export default function AdminCourseDetails() {
                         }}
                       />
                     ) : /\.(mp4|webm|ogg)$/i.test(selectedSectionDetails.mediaUrl) ? (
-                      // Video file player
                       <video
                         src={selectedSectionDetails.mediaUrl}
                         controls
@@ -349,22 +430,27 @@ export default function AdminCourseDetails() {
                     ) : /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/.test(
                       selectedSectionDetails.mediaUrl
                     ) ? (
-                      // YouTube video embed
-                      <iframe
-                        width="100%"
-                        height="530"
-                        style={{ borderRadius: "8px", marginTop: "0.5rem" }}
-                        src={`https://www.youtube.com/embed/${selectedSectionDetails.mediaUrl.match(
-                          /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/
-                        )[1]
-                          }`}
-                        title="YouTube video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
+                      <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                        <iframe
+                          width="100%"
+                          height={isMobile ? "200" : "315"}
+                          style={{
+                            borderRadius: "8px",
+                            marginTop: "0.5rem",
+                            position: isMobile ? "static" : "absolute",
+                            top: 0,
+                            left: 0
+                          }}
+                          src={`https://www.youtube.com/embed/${selectedSectionDetails.mediaUrl.match(
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/
+                          )[1]}`}
+                          title="YouTube video"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
                     ) : (
-                      // Default "View Media" link
                       <a
                         href={selectedSectionDetails.mediaUrl}
                         target="_blank"
@@ -378,8 +464,6 @@ export default function AdminCourseDetails() {
                   </Card>
                 )}
 
-
-
                 {selectedSectionDetails?.speechPracticeText && (
                   <Card className="mb-4 bg-gray-50 border">
                     <Text italic>
@@ -389,20 +473,34 @@ export default function AdminCourseDetails() {
                   </Card>
                 )}
 
-                {/* New Next section intro text */}
+                {/* Next section intro text */}
                 <div style={{ marginTop: "2rem" }}>
-                  <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>Next</div>
-                  <div style={{ marginTop: "0.5rem", color: "rgba(0,0,0,0.75)" }}>
+                  <div style={{
+                    fontWeight: "bold",
+                    fontSize: isMobile ? "1rem" : "1.1rem"
+                  }}>
+                    Next
+                  </div>
+                  <div style={{
+                    marginTop: "0.5rem",
+                    color: "rgba(0,0,0,0.75)",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}>
                     So, how was that for a{" "}
                     {allSections[selectedSectionIndex]?.title} introduction? Now it's time to
                     practise. Test your knowledge with quizzes, in the next activity.
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4 mt-4">
+                  <div className={`${isMobile ? 'flex flex-col gap-2' : 'flex gap-4'} mt-4`}>
                     {!allSections?.[selectedSectionIndex]?.isCompleted &&
                       selectedSectionDetails?.quiz?.length > 0 && (
-                        <Button type="primary" onClick={openQuizModal}>
+                        <Button
+                          type="primary"
+                          onClick={openQuizModal}
+                          size={isMobile ? "middle" : "large"}
+                          block={isMobile}
+                        >
                           Take Quiz
                         </Button>
                       )}
@@ -418,6 +516,8 @@ export default function AdminCourseDetails() {
                           }
                         }}
                         icon={<RightOutlined />}
+                        size={isMobile ? "middle" : "large"}
+                        block={isMobile}
                       >
                         {isLastSection ? "Finish" : "Next"}
                       </Button>
@@ -428,6 +528,8 @@ export default function AdminCourseDetails() {
                         <Button
                           type="primary"
                           onClick={handleSubmitQuiz}
+                          size={isMobile ? "middle" : "large"}
+                          block={isMobile}
                         >
                           Mark as Complete & Continue
                         </Button>
@@ -439,11 +541,17 @@ export default function AdminCourseDetails() {
 
             <Divider className="mt-10" />
             {allSections?.[allSections?.length - 1]?.isCompleted === true && (
-              <CommentSection courseId={id} canComment={true} />
+              <div>
+                {/* CommentSection would go here */}
+                <Card>
+                  <Text>Comments section would appear here when course is completed</Text>
+                </Card>
+              </div>
             )}
           </Content>
         </Layout>
       </Layout>
     </div>
+
   );
 }

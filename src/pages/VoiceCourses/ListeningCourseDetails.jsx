@@ -118,19 +118,25 @@ const VoiceCoursePlayer = () => {
     };
 
     const handleSubmitQuiz = async () => {
-        // const results = await submitQuiz(selectedAnswers);
-        // setQuizResults(results);
         try {
-             const reqBody = {
-            id: id,
-            submitedAnswers: selectedAnswers
+            const reqBody = {
+                id: id,
+                submitedAnswers: selectedAnswers
+            }
+            const res = await updateProgress(reqBody);
+
+            const { correctAnswers, progress } = res;
+
+            // Map into array of { selected, correct }
+            const results = Object.keys(correctAnswers).map((qIdx) => ({
+                selected: progress.submittedAnswers[qIdx], // your answer (already shifted)
+                correct: correctAnswers[qIdx],             // correct answer index
+            }));
+            console.log(results);
+            setQuizResults(results);
+        } catch (err) {
+            console.error("Error submitting quiz", err);
         }
-        const res = await updateProgress(reqBody);
-        console.log("Submitting quiz with answers:", res);
-        } catch (error) {
-            console.error("Error submitting quiz:", error);
-        }
-       
     };
 
     if (loading) return <Spin size="large" style={{ display: "block", margin: "50px auto" }} />;
@@ -216,6 +222,8 @@ const VoiceCoursePlayer = () => {
                 <audio
                     ref={audioRef}
                     controls
+
+                    controlsList="nodownload noplaybackrate noseek"
                     style={{ width: "100%" }}
                     onEnded={handleAudioEnd}
                 >
@@ -223,7 +231,7 @@ const VoiceCoursePlayer = () => {
                     Your browser does not support the audio element.
                 </audio>
                 <div style={{ marginTop: 20 }}>
-                    <Button type="primary" disabled={!quizUnlocked} onClick={() => setIsModalOpen(true)}>
+                    <Button type="primary" disabled={!quizUnlocked || quizResults} onClick={() => setIsModalOpen(true)}>
                         Start Quiz
                     </Button>
                 </div>

@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { updateCourseByIdAPI } from "../../../pages/Course/coursesHelper";
 import { useGlobalMessage } from "../../MessageProvider/MessageProvider";
+import { paths } from "../../../lib/path";
 
 const { Title, Text } = Typography;
 
@@ -33,7 +34,7 @@ export default function AdminAddCourse({ onSubmit }) {
     initialData || {
       title: "",
       description: "",
-      level: "easy", 
+      level: "easy",
       sections: [],
     }
   );
@@ -120,10 +121,11 @@ export default function AdminAddCourse({ onSubmit }) {
           data: course,
           auth: true,
         });
-        alert("Course created successfully!");
+        message.success("Course created successfully");
+
         console.log(res.data);
       }
-      navigate("/admin");
+      navigate('/dashboard');
     } catch (err) {
       console.error("Create course error:", err);
       alert("Error creating course.");
@@ -131,74 +133,62 @@ export default function AdminAddCourse({ onSubmit }) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="max-w-6xl mx-auto p-6 lg:p-10">
       {/* Page Title */}
-      <div className="mb-6 text-center">
-        <Title level={3} className="!mb-1 !text-2xl md:!text-3xl">
+      <div className="mb-8 text-center">
+        <Title level={3} className="!mb-1 !text-3xl font-semibold">
           {initialData ? "Edit Course" : "Create New Course"}
         </Title>
-        <Text type="secondary" className="text-sm md:text-base">
+        <Text type="secondary" className="text-base">
           {initialData
             ? "Update details of your course and manage its content."
             : "Fill in the details below to create a new course."}
         </Text>
       </div>
 
-      <Form
-        layout="vertical"
-        onFinish={handleSubmit}
-        className="bg-white rounded-xl shadow-sm p-4 sm:p-6"
-      >
-        {/* Course Title */}
-        <Form.Item
-          label={<span className="text-sm font-medium text-gray-700">Course Title</span>}
-          required
-        >
-          <Input
-            placeholder="Enter course title"
-            value={course.title}
-            onChange={(e) => setCourse({ ...course, title: e.target.value })}
-            className="h-10 text-base"
-          />
-        </Form.Item>
+      <Form layout="vertical" onFinish={handleSubmit} className="bg-white rounded-xl shadow-md p-6 lg:p-8">
+        {/* BASIC INFO */}
+        <Divider orientation="left">📘 Basic Information</Divider>
 
-        {/* Course Description */}
-        <Form.Item
-          label={<span className="text-sm font-medium text-gray-700">Course Description</span>}
-          required
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Form.Item label="Course Title" required>
+            <Input
+              placeholder="Enter course title"
+              value={course.title}
+              onChange={(e) => setCourse({ ...course, title: e.target.value })}
+            />
+          </Form.Item>
+
+          <Form.Item label="Course Level" required>
+            <Select
+              value={course.level}
+              onChange={(value) => setCourse({ ...course, level: value })}
+              placeholder="Select course level"
+            >
+              <Select.Option value="easy">Easy</Select.Option>
+              <Select.Option value="medium">Medium</Select.Option>
+              <Select.Option value="hard">Hard</Select.Option>
+            </Select>
+          </Form.Item>
+        </div>
+
+        <Form.Item label="Course Description" required>
           <Input.TextArea
             rows={4}
             placeholder="Provide a short description of the course"
             value={course.description}
-            onChange={(e) =>
-              setCourse({ ...course, description: e.target.value })
-            }
-            className="text-base"
+            onChange={(e) => setCourse({ ...course, description: e.target.value })}
           />
         </Form.Item>
 
-        <Form.Item label="Course Level" required>
-          <Select
-            value={course.level}
-            onChange={(value) => setCourse({ ...course, level: value })}
-            placeholder="Select course level"
-          >
-            <Select.Option value="easy">Easy</Select.Option>
-            <Select.Option value="medium">Medium</Select.Option>
-            <Select.Option value="hard">Hard</Select.Option>
-          </Select>
-        </Form.Item>
+        {/* SECTIONS */}
+        <Divider orientation="left">📂 Course Sections</Divider>
 
         {course?.sections?.map((section, index) => (
           <Card
             key={index}
-            title={
-              <span className="text-gray-800 font-medium flex items-center gap-2">
-                <BookOutlined className="text-indigo-500" /> Section {index + 1}
-              </span>
-            }
-            className="mb-6 rounded-lg shadow-sm"
+            className="mb-6 rounded-lg border border-gray-200 bg-gray-50 shadow-sm"
+            title={<span className="font-medium">Section {index + 1}: {section.title || "Untitled"}</span>}
             extra={
               <Button
                 type="text"
@@ -208,133 +198,82 @@ export default function AdminAddCourse({ onSubmit }) {
               />
             }
           >
-            <Form.Item
-              label={<span className="text-sm font-medium text-gray-700">Section Title</span>}
-              required
-            >
-              <Input
-                placeholder="Enter section title"
-                value={section.title}
-                onChange={(e) => updateSection(index, "title", e.target.value)}
-                className="h-9 text-base"
-              />
-            </Form.Item>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Form.Item label="Section Title" required>
+                <Input
+                  value={section.title}
+                  onChange={(e) => updateSection(index, "title", e.target.value)}
+                />
+              </Form.Item>
 
-            <Form.Item
-              label={<span className="text-sm font-medium text-gray-700">Content</span>}
-            >
+              <Form.Item label="Media URL">
+                <Input
+                  placeholder="Paste video or audio link"
+                  value={section.mediaUrl}
+                  onChange={(e) => updateSection(index, "mediaUrl", e.target.value)}
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item label="Content">
               <Input.TextArea
                 rows={3}
                 placeholder="Section content"
                 value={section.content}
-                onChange={(e) =>
-                  updateSection(index, "content", e.target.value)
-                }
-                className="text-base"
+                onChange={(e) => updateSection(index, "content", e.target.value)}
               />
             </Form.Item>
 
-            <Form.Item label="Media URL">
-              <Input
-                placeholder="Paste video or audio link"
-                value={section.mediaUrl}
-                onChange={(e) =>
-                  updateSection(index, "mediaUrl", e.target.value)
-                }
-                className="h-9 text-base"
-              />
-            </Form.Item>
-
-            <Divider className="text-gray-500">Quiz Questions</Divider>
-
+            {/* QUIZ */}
+            <Divider orientation="left">❓ Quiz Questions</Divider>
             {section.quiz.map((quiz, quizIndex) => (
               <Card
                 key={quizIndex}
                 size="small"
-                className="mb-4 rounded-lg border border-gray-200"
-                title={
-                  <span className="text-gray-700 font-medium flex items-center gap-2">
-                    <QuestionCircleOutlined className="text-indigo-500" /> Question{" "}
-                    {quizIndex + 1}
-                  </span>
-                }
+                className="mb-4 bg-white rounded-md border"
+                title={`Question ${quizIndex + 1}`}
                 extra={
                   <Popconfirm
                     title="Delete this quiz question?"
                     onConfirm={() => removeQuiz(index, quizIndex)}
-                    okText="Yes"
-                    cancelText="No"
                   >
-                    <Button type="link" danger className="text-sm">
-                      Remove
-                    </Button>
+                    <Button type="link" danger>Remove</Button>
                   </Popconfirm>
                 }
               >
-                <Form.Item
-                  label={<span className="text-sm font-medium text-gray-700">Question</span>}
-                >
+                <Form.Item label="Question">
                   <Input
-                    placeholder="Enter quiz question"
                     value={quiz.question}
                     onChange={(e) =>
-                      updateQuizQuestion(
-                        index,
-                        quizIndex,
-                        "question",
-                        e.target.value
-                      )
+                      updateQuizQuestion(index, quizIndex, "question", e.target.value)
                     }
-                    className="h-9 text-base"
                   />
                 </Form.Item>
 
-                {[0, 1, 2, 3].map((optIdx) => (
-                  <Form.Item
-                    key={optIdx}
-                    label={
-                      <span className="text-sm font-medium text-gray-700">
-                        Option {optIdx + 1}
-                      </span>
-                    }
-                  >
-                    <Input
-                      placeholder={`Enter option ${optIdx + 1}`}
-                      value={quiz.options[optIdx]}
-                      onChange={(e) =>
-                        updateQuizOption(
-                          index,
-                          quizIndex,
-                          optIdx,
-                          e.target.value
-                        )
-                      }
-                      className="h-9 text-base"
-                    />
-                  </Form.Item>
-                ))}
+                <div className="grid grid-cols-2 gap-4">
+                  {[0, 1, 2, 3].map((optIdx) => (
+                    <Form.Item key={optIdx} label={`Option ${optIdx + 1}`}>
+                      <Input
+                        value={quiz.options[optIdx]}
+                        onChange={(e) =>
+                          updateQuizOption(index, quizIndex, optIdx, e.target.value)
+                        }
+                      />
+                    </Form.Item>
+                  ))}
+                </div>
 
-                <Form.Item
-                  label={
-                    <span className="text-sm font-medium text-gray-700">
-                      Correct Answer (1–4)
-                    </span>
-                  }
-                >
-                  <InputNumber
-                    min={1}
-                    max={4}
+                <Form.Item label="Correct Answer">
+                  <Select
                     value={quiz.correctAnswer}
                     onChange={(val) =>
-                      updateQuizQuestion(
-                        index,
-                        quizIndex,
-                        "correctAnswer",
-                        val
-                      )
+                      updateQuizQuestion(index, quizIndex, "correctAnswer", val)
                     }
-                    className="w-full"
-                  />
+                  >
+                    {[1, 2, 3, 4].map((num) => (
+                      <Select.Option key={num} value={num}>{`Option ${num}`}</Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Card>
             ))}
@@ -344,35 +283,30 @@ export default function AdminAddCourse({ onSubmit }) {
               icon={<PlusOutlined />}
               onClick={() => addQuizToSection(index)}
               block
-              className="mt-2 h-10 text-base"
             >
               Add Quiz Question
             </Button>
           </Card>
         ))}
 
-        {/* Add Section */}
-        <Space className="block mb-6">
-          <Button
-            type="dashed"
-            icon={<PlusOutlined />}
-            onClick={addSection}
-            className="h-10 text-base"
-          >
-            Add Section
-          </Button>
-        </Space>
+        <Button
+          type="dashed"
+          icon={<PlusOutlined />}
+          onClick={addSection}
+          className="mb-6"
+          block
+        >
+          Add Section
+        </Button>
 
         <Divider />
 
-        {/* Submit */}
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="h-10 px-6 text-base rounded-md"
-        >
-          {initialData ? "Update Course" : "Create Course"}
-        </Button>
+        {/* SUBMIT */}
+        <div className="text-center">
+          <Button type="primary" htmlType="submit" size="large" className="px-10 rounded-lg">
+            {initialData ? "Update Course" : "Create Course"}
+          </Button>
+        </div>
       </Form>
     </div>
   );

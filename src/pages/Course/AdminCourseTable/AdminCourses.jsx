@@ -87,28 +87,28 @@ export default function AdminCoursesTable() {
       align: "center",
       responsive: ["md", "lg"],
     },
-    {
-      title: "Completed",
-      dataIndex: "completedCount",
-      key: "completedCount",
-      align: "center",
-      responsive: ["md", "lg"],
-    },
-    {
-      title: "Progress",
-      dataIndex: "percentage",
-      key: "percentage",
-      align: "center",
-      sorter: (a, b) => a.percentage - b.percentage,
-      render: (percentage) => (
-        <Progress
-          percent={percentage}
-          size="small"
-          status={percentage === 100 ? "success" : "active"}
-        />
-      ),
-      responsive: ["sm", "md", "lg"],
-    },
+    // {
+    //   title: "Completed",
+    //   dataIndex: "completedCount",
+    //   key: "completedCount",
+    //   align: "center",
+    //   responsive: ["md", "lg"],
+    // },
+    // {
+    //   title: "Progress",
+    //   dataIndex: "percentage",
+    //   key: "percentage",
+    //   align: "center",
+    //   sorter: (a, b) => a.percentage - b.percentage,
+    //   render: (percentage) => (
+    //     <Progress
+    //       percent={percentage}
+    //       size="small"
+    //       status={percentage === 100 ? "success" : "active"}
+    //     />
+    //   ),
+    //   responsive: ["sm", "md", "lg"],
+    // },
     {
       title: "Actions",
       key: "actions",

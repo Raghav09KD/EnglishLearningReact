@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import Login from './components/Auth/Login';
@@ -28,13 +28,14 @@ import EachUserProgress from './pages/UserProgress/EachUserProgress';
 import VoiceCoursesList from './pages/VoiceCourses/ListeningCourseList';
 import VoiceCoursePlayer from './pages/VoiceCourses/ListeningCourseDetails';
 import TeacherStudentManagement from './pages/Users/UsrManagent';
+import { AuthContext } from './context/AuthContext';
 
 
 const AllRoutes = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const { user, logout } = useContext(AuthContext);
 
   const RequireAuth = ({ children }) => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const { user, logout } = useContext(AuthContext);
 
     if (!user) {
       return <Navigate to="/" replace />;
@@ -44,7 +45,7 @@ const AllRoutes = () => {
   };
 
   function PrivateRoute({ children, allowedRoles }) {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const { user, logout } = useContext(AuthContext);
 
     if (!user) return <Navigate to="/login" replace />;
 
@@ -57,7 +58,7 @@ const AllRoutes = () => {
   }
 
   const PublicRoute = ({ children }) => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const { user, logout } = useContext(AuthContext);
 
     // Redirect authenticated users away from login/register
     if (user) {
@@ -71,7 +72,7 @@ const AllRoutes = () => {
 
     if (!user) return <Navigate to="/login" />;
 
-    if (user.role === "admin") return <AdminDashboard />;
+    if (user.role === "admin" || user.role === 'teacher') return <AdminDashboard />;
     if (user.role === "student") return <StudentDashboard />;
 
     return <div>Unauthorized role</div>; // fallback if role is weird
@@ -83,12 +84,12 @@ const AllRoutes = () => {
       <Route element={<Layout />}>
         {/* Home Route */}
         <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
-        <Route path={paths.ADD_COURSE} element={<PrivateRoute allowedRoles={["admin"]}><AdminAddCourse /></PrivateRoute>} />
+        <Route path={paths.ADD_COURSE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminAddCourse /></PrivateRoute>} />
         {/* Student Auth */}
         <Route path={paths.LOGIN} element={<PublicRoute><Login /></PublicRoute>} />
 
-        <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourcesList /></PrivateRoute>} />
-        <Route path={paths.MANAGE_COURSE} element={<PrivateRoute allowedRoles={["admin"]}><AdminCoursesTable /></PrivateRoute>} />
+        <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student', 'teacher']}><CourcesList /></PrivateRoute>} />
+        <Route path={paths.MANAGE_COURSE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminCoursesTable /></PrivateRoute>} />
 
         <Route path="/courses/:id" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourseDetails /></PrivateRoute>} />
 
@@ -105,18 +106,18 @@ const AllRoutes = () => {
           }
         />
 
-        <Route path={paths.ADMIN_USER_TABLE} element={<PrivateRoute allowedRoles={["admin"]}><AdminUserTable /></PrivateRoute>} />
+        <Route path={paths.ADMIN_USER_TABLE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminUserTable /></PrivateRoute>} />
 
 
         {/* speech practise */}
         <Route path={paths.PRACTISE_SPEECH} element={<PrivateRoute allowedRoles={["admin", 'student']}><SpeechPractice /></PrivateRoute>} />
-        <Route path={paths.MANAGE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><AdminSpeechPractise /></PrivateRoute>} />
+        <Route path={paths.MANAGE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminSpeechPractise /></PrivateRoute>} />
 
-        <Route path={paths.CREATE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><CreateSpeechPractice /></PrivateRoute>} />
+        <Route path={paths.CREATE_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><CreateSpeechPractice /></PrivateRoute>} />
         <Route path={paths.LIST_SPEECH_PRACTISE} element={<PrivateRoute allowedRoles={["admin", "student"]}><SpeechPracticeList /></PrivateRoute>} />
 
         {/* Voice Courses */}
-        <Route path={paths.ADD_LISTENING_PRACTISE} element={<PrivateRoute allowedRoles={["admin"]}><AddVoiceCourses /></PrivateRoute>} />
+        <Route path={paths.ADD_LISTENING_PRACTISE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AddVoiceCourses /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_LIST} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursesList /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_DETAILS} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursePlayer /></PrivateRoute>} />
 

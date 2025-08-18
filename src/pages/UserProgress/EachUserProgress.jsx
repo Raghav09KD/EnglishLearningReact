@@ -6,6 +6,14 @@ import { Card, Typography, Progress, Table, Collapse, Divider } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import { useLocation } from "react-router-dom";
 import { fetchListeningProgress } from "../VoiceCourses/voiceCourseHelper";
+import {
+    BookOutlined,
+    SoundOutlined,
+    AudioOutlined,
+    TrophyOutlined,
+    CheckCircleOutlined,
+    CloseCircleOutlined
+} from '@ant-design/icons';
 
 import goldMedal from "../../assets/svgs/goldMedal.svg";
 import silverMedal from "../../assets/svgs/silverMedal.svg";
@@ -22,6 +30,18 @@ export default function EachUserProgress() {
     const [courseProgress, setCourseProgress] = useState([]);
     const [speechScores, setSpeechScores] = useState([]);
     const [listeningScores, setListeningScores] = useState([]);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Check for mobile view
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const getMedalInfo = (medal) => {
         const map = {
@@ -76,7 +96,24 @@ export default function EachUserProgress() {
         try {
             const res = await fetchListeningProgress();
             console.log("🚀 ~ handleFetchListeningScore ~ res:", res);
-            setListeningScores(res || []);
+            const formattedScores = res.map(course => {
+                const quizDetails = (course.quiz || []).map((q, idx) => {
+                    const selectedAnswer = course.submittedAnswers?.[idx];
+                    return {
+                        ...q,
+                        selectedAnswer,
+                        isCorrect: selectedAnswer === q.correctAnswer
+                    };
+                });
+
+                return {
+                    ...course,
+                    quizDetails
+                };
+            });
+
+            setListeningScores(formattedScores);
+     
         } catch (error) {
             message.error("Failed to fetch user progress. Please try again later")
         }
@@ -168,114 +205,262 @@ export default function EachUserProgress() {
 
 
     return (
-        <Card >
-            <QuizDetailsModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                details={activeQuizDetails}
-            />
-            <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                <TabPane tab="📘 Courses" key="courses">
-                    {/* Course Progress */}
+        <div className={`${isMobile ? 'p-2' : 'p-4'}`}>
+            <Card className="shadow-lg">
+                <QuizDetailsModal
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    details={activeQuizDetails}
+                />
 
-                    <Card title={<Title level={4}>📘 Course Progress  </Title>} bordered>
-                        <Collapse accordion>
-                            {courseProgress.map((course, idx) => {
-                                const medalInfo = getMedalInfo(course.medal);
-                                return (
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    size={isMobile ? 'small' : 'default'}
+                    tabPosition={isMobile ? 'top' : 'top'}
+                >
+                    {/* Courses Tab */}
+                    <TabPane
+                        tab={
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                <BookOutlined /> {isMobile ? 'Courses' : ' Courses'}
+                            </span>
+                        }
+                        key="courses"
+                    >
+                        <Card
+                            title={
+                                <Title level={isMobile ? 5 : 4} className="m-0 flex items-center gap-2">
+                                    Course Progress
+                                </Title>
+                            }
+                            bordered
+                            className="shadow-sm"
+                        >
+                            <Collapse
+                                accordion
+                                size={isMobile ? 'small' : 'default'}
+                                className="bg-gray-50"
+                            >
+                                {courseProgress.map((course, idx) => {
+                                    const medalInfo = getMedalInfo(course.medal);
+                                    return (
+                                        <Panel
+                                            header={
+                                                <div className={`${isMobile ? 'flex flex-col gap-1' : 'flex items-center gap-3'}`}>
+                                                    <span className={isMobile ? 'text-sm font-medium' : 'text-base'}>
+                                                        {course.course.title}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Tag color="blue" size={isMobile ? 'small' : 'default'}>
+                                                            {course.completedSections.length}/{course.currentSection} sections
+                                                        </Tag>
+                                                        {course?.medal && (
+                                                            <div className="flex items-center gap-1">
+                                                                <span className="text-lg">{medalInfo?.emoji}</span>
+                                                                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-gray-600`}>
+                                                                    {medalInfo?.label}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            }
+                                            key={idx}
+                                            className="mb-2"
+                                        >
+                                            <div className={isMobile ? 'overflow-x-auto' : ''}>
+                                                <Table
+                                                    dataSource={course.quizScores.map((q, i) => ({ ...q, key: i }))}
+                                                    columns={courseColumns}
+                                                    pagination={false}
+                                                    size="small"
+                                                    scroll={isMobile ? { x: 400 } : undefined}
+                                                    className="bg-white rounded-lg"
+                                                />
+                                            </div>
+                                        </Panel>
+                                    );
+                                })}
+                            </Collapse>
+                        </Card>
+                    </TabPane>
+
+                    {/* Speech Practice Tab */}
+                    <TabPane
+                        tab={
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                <SoundOutlined /> {isMobile ? 'Speech' : 'Speech Practice'}
+                            </span>
+                        }
+                        key="speech"
+                    >
+                        <Card
+                            title={
+                                <Title level={isMobile ? 5 : 4} className="m-0">
+                                    Speech Practice
+                                </Title>
+                            }
+                            bordered
+                            className="shadow-sm"
+                        >
+                            {speechScores.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <SoundOutlined className="text-4xl text-gray-400 mb-4" />
+                                    <Text className="text-gray-500">No speech scores available</Text>
+                                </div>
+                            ) : (
+                                <div className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+                                    {speechScores.map((s, idx) => (
+                                        <Card
+                                            key={idx}
+                                            type="inner"
+                                            title={
+                                                <div className={`${isMobile ? 'flex flex-col gap-1' : 'flex justify-between items-center'}`}>
+                                                    <Tag
+                                                        color={s.score >= 90 ? 'green' : s.score >= 70 ? 'orange' : 'red'}
+                                                        className="text-sm font-semibold"
+                                                    >
+                                                        Score: {s.score}%
+                                                    </Tag>
+                                                    <Text className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-500`}>
+                                                        {new Date(s.createdAt).toLocaleString()}
+                                                    </Text>
+                                                </div>
+                                            }
+                                            className="shadow-sm hover:shadow-md transition-shadow"
+                                            size={isMobile ? 'small' : 'default'}
+                                        >
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <Text strong className="text-green-600">✓ Expected:</Text>
+                                                    <p className={`${isMobile ? 'text-sm' : ''} text-gray-600 mt-1 italic`}>
+                                                        "{s.expectedText}"
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <Text strong className="text-blue-600">🎤 Spoken:</Text>
+                                                    <p className={`${isMobile ? 'text-sm' : ''} mt-1`}>
+                                                        "{s.spokenText}"
+                                                    </p>
+                                                </div>
+
+                                                <Divider className="my-3" />
+
+                                                <div>
+                                                    <Text className={`${isMobile ? 'text-sm' : ''} text-gray-600 mb-2 block`}>
+                                                        Word Accuracy:
+                                                    </Text>
+                                                    <Progress
+                                                        percent={Math.round((s.correctWords / s.totalWords) * 100)}
+                                                        format={() => `${s.correctWords}/${s.totalWords} words correct`}
+                                                        strokeColor={{
+                                                            '0%': '#108ee9',
+                                                            '100%': '#87d068',
+                                                        }}
+                                                        size={isMobile ? 'small' : 'default'}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </Card>
+                    </TabPane>
+
+                    {/* Listening Practice Tab */}
+                    <TabPane
+                        tab={
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                <AudioOutlined /> {isMobile ? 'Listening' : ' Listening Practice'}
+                            </span>
+                        }
+                        key="listening"
+                    >
+                        <Card
+                            title={
+                                <Title level={isMobile ? 5 : 4} className="m-0">
+                                    🎧 Listening Practice
+                                </Title>
+                            }
+                            bordered
+                            className="shadow-sm"
+                        >
+                            <Collapse
+                                accordion
+                                size={isMobile ? 'small' : 'default'}
+                                className="bg-gray-50"
+                            >
+                                {listeningScores?.map((course, idx) => (
                                     <Panel
                                         header={
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                <span>
-                                                    {course.course.title} ({course.completedSections.length} / {course.currentSection} sections completed)
+                                            <div className={`${isMobile ? 'flex flex-col gap-1' : 'flex justify-between items-center'}`}>
+                                                <span className={`${isMobile ? 'text-sm' : 'text-base'} font-medium`}>
+                                                    {course?.courseTitle || 'Untitled Course'}
                                                 </span>
-                                                {course?.medal && (
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                                        <img src={medalInfo?.emoji} alt="" width={20} />
-                                                        <h3 className="text-xs font-semibold text-gray-500">{medalInfo?.label}</h3>
-                                                    </span>
-                                                )}
+                                                <Tag
+                                                    color={course.score >= 90 ? 'green' : course.score >= 70 ? 'orange' : 'red'}
+                                                    size={isMobile ? 'small' : 'default'}
+                                                >
+                                                    Score: {course?.score}%
+                                                </Tag>
                                             </div>
                                         }
                                         key={idx}
+                                        className="mb-2"
                                     >
-                                        <Table
-                                            dataSource={course.quizScores.map((q, i) => ({ ...q, key: i }))}
-                                            columns={courseColumns}
-                                            pagination={false}
-                                            size="small"
-                                        />
-                                    </Panel>
-                                )
-                            })}
-                        </Collapse>
-                    </Card>
-                </TabPane>
+                                        <div className="space-y-3">
+                                            {Array.isArray(course?.quizDetails) && course.quizDetails.map((quiz, qIdx) => (
+                                                <div
+                                                    key={qIdx}
+                                                    className={`
+                            ${isMobile ? 'p-3' : 'p-4'} rounded-lg border-l-4 transition-all hover:shadow-sm
+                            ${quiz.isCorrect
+                                                            ? 'bg-green-50 border-l-green-400 border border-green-200'
+                                                            : 'bg-red-50 border-l-red-400 border border-red-200'
+                                                        }
+                          `}
+                                                >
+                                                    <div className="flex items-start gap-2 mb-3">
+                                                        {quiz.isCorrect ?
+                                                            <CheckCircleOutlined className="text-green-500 text-lg mt-0.5" /> :
+                                                            <CloseCircleOutlined className="text-red-500 text-lg mt-0.5" />
+                                                        }
+                                                        <Text strong className={`${isMobile ? 'text-sm' : ''}`}>
+                                                            Q{qIdx + 1}. {quiz.question}
+                                                        </Text>
+                                                    </div>
 
-                <TabPane tab="🗣️ Speech Practice" key="speech">
-                    {/* Speech Progress */}
-                    <Card title={<Title level={4}>🗣️ Speech Practice</Title>} bordered>
-                        {speechScores.length === 0 ? (
-                            <Text>No speech scores available</Text>
-                        ) : (
-                            speechScores.map((s, idx) => (
-                                <Card
-                                    key={idx}
-                                    type="inner"
-                                    title={`Score: ${s.score}% | ${new Date(s.createdAt).toLocaleString()}`}
-                                    style={{ marginBottom: 12 }}
-                                >
-                                    <Text strong>Expected:</Text>
-                                    <p style={{ color: '#888' }}>{s.expectedText}</p>
-                                    <Text strong>Spoken:</Text>
-                                    <p>{s.spokenText}</p>
-                                    <Divider />
-                                    <Progress
-                                        percent={Math.round((s.correctWords / s.totalWords) * 100)}
-                                        format={(p) => `${s.correctWords}/${s.totalWords} words correct`}
-                                    />
-                                </Card>
-                            ))
-                        )}
-                    </Card>
-                </TabPane>
+                                                    <div className={`${isMobile ? 'space-y-2' : 'space-y-2'} ml-6`}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Tag color="green" size="small">Correct</Tag>
+                                                            <Text className={`${isMobile ? 'text-sm' : ''}`}>
+                                                                {quiz?.options[quiz?.correctAnswer - 1]}
+                                                            </Text>
+                                                        </div>
 
-                <TabPane tab="🎧 Listening Practice" key="listening">
-                    <Card title={<Title level={4}>🎧 Listening Practice</Title>} bordered>
-                        <Collapse accordion>
-                            {listeningScores?.map((course, idx) => (
-                                <Panel header={`${course?.courseTitle || 'NA'} — Score: ${course?.score}%`} key={idx}>
-                                    {Array.isArray(course?.quizDetails) && course.quizDetails.map((quiz, qIdx) => (
-                                        <div
-                                            key={qIdx}
-                                            style={{
-                                                padding: "12px",
-                                                marginBottom: "12px",
-                                                background: quiz.isCorrect ? "#e6fffb" : "#fff1f0",
-                                                border: `1px solid ${quiz.isCorrect ? "#b7eb8f" : "#ffa39e"}`,
-                                                borderRadius: "8px",
-                                            }}
-                                        >
-                                            <Text strong>{`Q${qIdx + 1}. ${quiz.question}`}</Text>
-                                            <div style={{ marginTop: "8px" }}>
-                                                <Text type={quiz?.isCorrect ? "success" : "danger"}>
-                                                    ✅ Correct Answer: {quiz?.options[quiz?.correctAnswer - 1]}
-                                                </Text>
-                                            </div>
-                                            <div>
-                                                <Text type={quiz.isCorrect ? "success" : "danger"}>
-                                                    📝 Your Answer: {quiz?.options[quiz?.selectedAnswer - 1]}
-                                                </Text>
-                                            </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Tag color={quiz.isCorrect ? "green" : "red"} size="small">
+                                                                Your Answer
+                                                            </Tag>
+                                                            <Text className={`${isMobile ? 'text-sm' : ''}`}>
+                                                                {quiz?.options[quiz?.selectedAnswer - 1]}
+                                                            </Text>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </Panel>
-                            ))}
-                        </Collapse>
-                    </Card>
-                </TabPane>
-            </Tabs>
-        </Card>
+                                    </Panel>
+                                ))}
+                            </Collapse>
+                        </Card>
+                    </TabPane>
+                </Tabs>
+            </Card>
+        </div>
     );
 };
 

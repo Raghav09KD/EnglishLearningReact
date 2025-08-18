@@ -1,21 +1,21 @@
 import { useNavigate, Link } from "react-router-dom";
 import { Layout, Avatar, Button, Typography, Space, Dropdown, Menu } from "antd";
 import { LogoutOutlined, DashboardOutlined, ReadOutlined, MenuOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { paths } from "../../lib/path";
+import { AuthContext } from "../../context/AuthContext";
 
 const { Header } = Layout;
 const { Text } = Typography;
 
 export default function AuthNavbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, logout } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate(paths.HOME);
+    logout();
   };
 
   const getInitial = (name) => {

@@ -27,9 +27,7 @@ const Login = () => {
       toast.error("Invalid login response");
       return;
     }
-
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
+    login(user, token);
 
     toast.success(`Welcome, ${user.name}`);
     navigate("/dashboard");

@@ -1,11 +1,12 @@
 
-import { Typography, Table, Tag, Button, Tooltip, Space, Modal, Input, message } from "antd";
+import { Typography, Table, Tag, Button, Tooltip, Space, Modal, Input, message, Grid } from "antd";
 import { EditOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 import { fetchAllSpeechPractise, toggleSpeechAPI, updateSpeechRecordAPI } from "../Course/SpeechRecognisation/speechHelper";
-const { Paragraph } = Typography
+const { Paragraph, Title } = Typography
 const { TextArea } = Input;
+const { useBreakpoint } = Grid;
 
 export default function AdminSpeechPractise() {
     // const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function AdminSpeechPractise() {
     // inside your component:
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState("");
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editRecord, setEditRecord] = useState({ title: "", text: "", id: null });
@@ -32,6 +35,7 @@ export default function AdminSpeechPractise() {
             dataIndex: "title",
             key: "title",
             sorter: (a, b) => a.title.localeCompare(b.title),
+            responsive: ["xs", "sm", "md", "lg", "xl"], // always visible
         },
         {
             title: "Status",
@@ -47,6 +51,7 @@ export default function AdminSpeechPractise() {
                 { text: "Disabled", value: false },
             ],
             onFilter: (value, record) => record.isActive === value,
+            responsive: ["sm", "md", "lg", "xl"], // hide on xs if needed
         },
         {
             title: "Content",
@@ -61,10 +66,9 @@ export default function AdminSpeechPractise() {
                 >
                     {text}
                 </Paragraph>
-            )
+            ),
+            responsive: ["lg"], // only show on lg and above
         },
-
-
         {
             title: "Actions",
             key: "actions",
@@ -78,7 +82,7 @@ export default function AdminSpeechPractise() {
                                 setEditRecord({
                                     title: record.title,
                                     text: record.text,
-                                    id: record._id
+                                    id: record._id,
                                 }) || setIsEditModalOpen(true)
                             }
                         >
@@ -97,6 +101,7 @@ export default function AdminSpeechPractise() {
                     </Tooltip>
                 </Space>
             ),
+            responsive: ["xs", "sm", "md", "lg", "xl"], // always visible
         },
     ];
 
@@ -145,46 +150,77 @@ export default function AdminSpeechPractise() {
 
 
     return (
-        <div className="p-4 bg-white rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold mb-4">All Speech Practise</h2>
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            {/* Title */}
+            <Title
+                level={isMobile ? 4 : 3}
+                className={`font-semibold ${isMobile ? "text-lg mb-3" : "text-xl mb-4"}`}
+            >
+                All Speech Practice
+            </Title>
+
+            {/* Full Content Modal */}
             <Modal
                 open={isModalOpen}
                 onCancel={handleCloseModal}
                 footer={null}
                 title="Full Content"
+                width={isMobile ? "95%" : 600}
+                style={isMobile ? { top: 20 } : {}}
+                bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }}
             >
-                <p>{modalContent}</p>
+                <p className={isMobile ? "text-sm leading-relaxed" : "text-base"}>
+                    {modalContent}
+                </p>
             </Modal>
+
+            {/* Edit Modal */}
             <Modal
                 open={isEditModalOpen}
                 title="Edit Course Content"
                 onCancel={() => setIsEditModalOpen(false)}
                 onOk={() => handleUpdateSpeechRecord(editRecord)}
+                width={isMobile ? "95%" : 600}
+                style={isMobile ? { top: 20 } : {}}
             >
-                <Input
-                    placeholder="Title"
-                    className="mb-3"
-                    value={editRecord.title}
-                    onChange={(e) =>
-                        setEditRecord((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                />
-                <TextArea
-                    placeholder="Content"
-                    rows={4}
-                    value={editRecord.text}
-                    onChange={(e) =>
-                        setEditRecord((prev) => ({ ...prev, text: e.target.value }))
-                    }
-                />
+                <div className="space-y-3">
+                    <Input
+                        placeholder="Title"
+                        value={editRecord.title}
+                        onChange={(e) =>
+                            setEditRecord((prev) => ({ ...prev, title: e.target.value }))
+                        }
+                        size={isMobile ? "middle" : "large"}
+                    />
+                    <TextArea
+                        placeholder="Content"
+                        rows={isMobile ? 3 : 5}
+                        value={editRecord.text}
+                        onChange={(e) =>
+                            setEditRecord((prev) => ({ ...prev, text: e.target.value }))
+                        }
+                    />
+                </div>
             </Modal>
-            <Table
-                columns={columns}
-                dataSource={speechPractices}
-                rowKey="_id"
-                pagination={{ pageSize: 6 }}
-                bordered
-            />
+
+            {/* Table Wrapper */}
+            <div className="w-full">
+                <Table
+                    columns={columns}
+                    dataSource={speechPractices}
+                    rowKey="_id"
+                    pagination={{
+                        pageSize: 6,
+                        size: isMobile ? "small" : "default",
+                        showSizeChanger: !isMobile,
+                        showQuickJumper: !isMobile,
+                        simple: isMobile,
+                    }}
+                    bordered
+                    size={isMobile ? "small" : "middle"}
+                    scroll={isMobile ? { x: 600 } : undefined}
+                />
+            </div>
         </div>
     );
 }

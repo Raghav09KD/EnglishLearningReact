@@ -7,6 +7,8 @@ import {
 } from "@ant-design/icons";
 import { Link } from 'react-router-dom';
 import { paths } from '../../lib/path';
+import { useEffect } from 'react';
+import request from '../../lib/api/request';
 
 const { Title, Paragraph } = Typography;
 
@@ -58,6 +60,14 @@ const StudentDashboard = () => {
       link: paths.STUDENT_PROGRESS,
     },
   ];
+
+  // useEffect(() => {
+  //   const res = request({
+  //     method: "get",
+  //     url: '/admin/performanceGraph',
+  //     auth: true,
+  //   })
+  // }, [])
 
   return (
     <div className="p-6 w-full">

@@ -12,7 +12,7 @@ export const useSpeechRecognition = (onResult) => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true; // keep it running
+    recognition.continuous = true;
     recognition.interimResults = false;
     recognition.lang = "en-IN";
 
@@ -20,14 +20,19 @@ export const useSpeechRecognition = (onResult) => {
       const transcript = Array.from(event.results)
         .map((result) => result[0].transcript)
         .join(" ");
+      console.log("Transcript event:", transcript);
       onResult(transcript);
     };
 
     recognition.onend = () => {
       if (isListening) {
-        // Auto-restart if still supposed to be listening
-        recognition.start();
+        console.log("Restarting recognition…"); // ✅ debug
+        setTimeout(() => recognition.start(), 200); // 👈 delay prevents Chrome bug
       }
+    };
+
+    recognition.onerror = (err) => {
+      console.error("Recognition error:", err); // ✅ catch errors
     };
 
     recognitionRef.current = recognition;
@@ -39,6 +44,7 @@ export const useSpeechRecognition = (onResult) => {
 
   const start = () => {
     if (recognitionRef.current && !isListening) {
+      console.log("🎤 Start listening…");
       setIsListening(true);
       recognitionRef.current.start();
     }
@@ -46,9 +52,9 @@ export const useSpeechRecognition = (onResult) => {
 
   const stop = () => {
     if (recognitionRef.current && isListening) {
+      console.log("🛑 Stop listening…");
       setIsListening(false);
       recognitionRef.current.stop();
-      recognitionRef.current = null;
     }
   };
 

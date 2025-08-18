@@ -54,7 +54,7 @@ const CreateSpeechPractice = () => {
       setText("");
       setCourseId("");
 
-      navigate('/admin');
+      navigate('/dashboard');
     } catch (err) {
       console.error(err);
       toast.error("Failed to create speech practice.");
@@ -68,7 +68,7 @@ const CreateSpeechPractice = () => {
         bodyStyle={{ padding: "24px" }}
       >
         <Title level={4} className="mb-6 text-gray-800">
-           Create Speech Practice
+          Create Speech Practice
         </Title>
 
         <Form layout="vertical" onFinish={handleSubmit}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Typography, Button, Row, Col, Spin,message } from "antd";
+import { Card, Typography, Button, Row, Col, Spin, message } from "antd";
 import { PlayCircleOutlined } from "@ant-design/icons";
 
 import axios from "axios";
@@ -47,7 +47,7 @@ const VoiceCoursesList = () => {
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <Title level={2} className="!mb-0 text-gray-800">
-           Available Voice Courses
+          Available Voice Courses
         </Title>
         <span className="text-gray-500 text-sm">{courses.length} courses</span>
       </div>
@@ -64,25 +64,33 @@ const VoiceCoursesList = () => {
             <Col xs={24} sm={12} lg={8} key={course._id}>
               <Card
                 hoverable
-                className="rounded-2xl shadow-md h-full flex flex-col justify-between"
+                className={`rounded-2xl shadow-md h-full flex flex-col justify-between ${course.isCompleted ? "opacity-70" : ""
+                  }`}
                 bodyStyle={{ padding: "20px" }}
               >
                 <div className="flex-1 mb-4">
                   <Title level={4} className="!mb-1 text-gray-800">
                     {course.title}
                   </Title>
-                  <Text type="secondary" className="text-sm">
-                    {/* Optional: add duration/description here */}
-                  </Text>
+                  {course.isCompleted ? (
+                    <Text type="success" className="text-sm font-medium">
+                      Completed
+                    </Text>
+                  ) : (
+                    <Text type="secondary" className="text-sm">
+                      Not started yet
+                    </Text>
+                  )}
                 </div>
 
                 <div className="flex justify-end">
                   <Button
                     type="primary"
                     icon={<PlayCircleOutlined />}
-                    onClick={() => handleStartCourse(course._id)}
+                    disabled={course.isCompleted}
+                    onClick={() => !course.isCompleted && handleStartCourse(course._id)}
                   >
-                    Start
+                    {course.isCompleted ? "Completed" : "Start"}
                   </Button>
                 </div>
               </Card>
