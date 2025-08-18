@@ -257,7 +257,7 @@ export default function EachUserProgress() {
                                                         </Tag>
                                                         {course?.medal && (
                                                             <div className="flex items-center gap-1">
-                                                                <span className="text-lg">{medalInfo?.emoji}</span>
+                                                                <span className="text-lg">{<img src={medalInfo?.emoji} alt="" className="w-5"/>}</span>
                                                                 <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-gray-600`}>
                                                                     {medalInfo?.label}
                                                                 </span>

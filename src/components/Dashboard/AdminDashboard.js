@@ -8,8 +8,12 @@ import {
   Mic2,
 } from "lucide-react";
 import { paths } from "../../lib/path";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 const AdminDashboard = () => {
+  const { user } = useContext(AuthContext);
+
   return (
     <div className="p-8 space-y-10 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -64,7 +68,7 @@ const AdminDashboard = () => {
             title="Manage Listening Practice"
             icon={<ListChecks size={24} />}
             color="teal"
-            link="/listening/manage"
+            link={paths.MANAGE_VOICE_COURSES}
           />
         </div>
       </section>
@@ -74,20 +78,38 @@ const AdminDashboard = () => {
         <h2 className="text-xl font-semibold text-gray-800 mb-6">
           User Management
         </h2>
+
+        {/* View All Users */}
         <Link to={paths.ADMIN_USER_TABLE}>
           <div className="flex items-center gap-4 p-5 border rounded-lg bg-white shadow-sm hover:shadow-md hover:bg-indigo-50 transition duration-200 cursor-pointer">
             <Users className="text-indigo-600" size={26} />
             <div>
-              <h3 className="text-base font-medium text-gray-900">
-                View All Users
-              </h3>
+              <h3 className="text-base font-medium text-gray-900">View All Users</h3>
               <p className="text-sm text-gray-500">
                 Manage students and monitor their progress
               </p>
             </div>
           </div>
         </Link>
+
+        {/* Only for Admins → Manage Teacher's Students */}
+        {user?.role === "admin" && (
+          <Link to={paths.USER_MANAGEMENT}>
+            <div className="flex items-center gap-4 mt-4 p-5 border rounded-lg bg-white shadow-sm hover:shadow-md hover:bg-green-50 transition duration-200 cursor-pointer">
+              <Users className="text-green-600" size={26} />
+              <div>
+                <h3 className="text-base font-medium text-gray-900">
+                  Manage Teacher's Students
+                </h3>
+                <p className="text-sm text-gray-500">
+                  View and assign students under teachers
+                </p>
+              </div>
+            </div>
+          </Link>
+        )}
       </section>
+
     </div>
   );
 };

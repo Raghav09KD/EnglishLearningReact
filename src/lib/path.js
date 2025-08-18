@@ -18,9 +18,13 @@ export const paths = {
     LISTENING_COURSE_LIST : '/listeningPractise/list',
     LISTENING_COURSE_DETAILS : '/listeningPractise/:id',
 
+    MANAGE_VOICE_COURSES : '/listeningPractise/mange',
+
     STUDENT_PROGRESS : '/student/viewProgress',
 
-    USER_MANAGEMENT : '/mangeUsers',
+    USER_MANAGEMENT : '/manageTeach',
+
+    ADMIN_SIGN_UP : '/adminS1gn7P',
 
     ADMIN_USER_TABLE : '/admin/viewUsers',
 }

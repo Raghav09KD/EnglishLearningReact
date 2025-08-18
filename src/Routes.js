@@ -30,6 +30,9 @@ import VoiceCoursePlayer from './pages/VoiceCourses/ListeningCourseDetails';
 import TeacherStudentManagement from './pages/Users/UsrManagent';
 import { AuthContext } from './context/AuthContext';
 import ResetPassword from './components/ResetPassword';
+import AdminSignup from './pages/Users/AdminSignUp';
+import AdminVoiceCourses from './pages/VoiceCourses/ManageVoiceCourses';
+
 
 const AllRoutes = () => {
   const { user, logout } = useContext(AuthContext);
@@ -77,7 +80,7 @@ const AllRoutes = () => {
 
     return <div>Unauthorized role</div>; // fallback if role is weird
   }
-
+  console.log(user)
 
   return (<Router>
     <Routes>
@@ -124,6 +127,8 @@ const AllRoutes = () => {
         <Route path={paths.ADD_LISTENING_PRACTISE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AddVoiceCourses /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_LIST} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursesList /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_DETAILS} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursePlayer /></PrivateRoute>} />
+        <Route path={paths.MANAGE_VOICE_COURSES} element={<PrivateRoute allowedRoles={["admin"]}><AdminVoiceCourses /></PrivateRoute>} />
+
 
 
         {/* Student Layout with Sidebar */}
@@ -142,6 +147,7 @@ const AllRoutes = () => {
         <Route path="/admin/Viewprogress" element={<PrivateRoute allowedRoles={['admin']}><AdminProgress /></PrivateRoute>} />
 
 
+        <Route path={paths.ADMIN_SIGN_UP} element={<PublicRoute allowedRoles={['student']}><AdminSignup /></PublicRoute>} />
 
 
 

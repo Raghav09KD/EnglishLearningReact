@@ -9,8 +9,10 @@ const { Title } = Typography;
 const AdminUserTable = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedUserProgress, setSelectedUserProgress] = useState(null);
-const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedUserProgress, setSelectedUserProgress] = useState([]);
+    const [listeningProgress, setListeningProgress] = useState([]);
+    const [speechProgress, setSpeechProgress] = useState([]);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleFetchAllUsers = async () => {
         try {
@@ -35,14 +37,49 @@ const [drawerOpen, setDrawerOpen] = useState(false);
     }, []);
 
     const handleViewProgress = async (user) => {
-         const res = await request({
-                method: "get",
-                url: `/admin/progress?userId=${user._id}`,
-                auth: true
-            });
+        const res = await request({
+            method: "get",
+            url: `/admin/progress?userId=${user._id}`,
+            auth: true
+        });
         setSelectedUserProgress({ user, courseProgress: res });
         setDrawerOpen(true);
+        getVoiseProgress(user);
+        getSpeechScoress(user);
     };
+
+
+    const getVoiseProgress = async (user) => {
+        try {
+            const res = await request({
+                method: "post",
+                url: `/voicePractise/viewProgressForUsr`,
+                data: { userId: user?._id },
+                auth: true
+            });
+            setListeningProgress(res);
+            console.log("res ++++>", res)
+        } catch (error) {
+
+        }
+
+    }
+
+
+    const getSpeechScoress = async (user) => {
+        try {
+            const res = await request({
+                method: "post",
+                url: `/speechPractise/getProgressForUsr`,
+                data: { userId: user?._id },
+                auth: true
+            });
+            setSpeechProgress(res);
+            console.log("ressss", res)
+        } catch (error) {
+
+        }
+    }
 
 
     const handleToggleUserStatus = async (userId) => {
@@ -106,7 +143,7 @@ const [drawerOpen, setDrawerOpen] = useState(false);
                         <Button
                             type="primary"
                             icon={<EyeOutlined />}
-                        onClick={() => handleViewProgress(record)}
+                            onClick={() => handleViewProgress(record)}
                         >
                             View
                         </Button>
@@ -151,6 +188,8 @@ const [drawerOpen, setDrawerOpen] = useState(false);
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
                 userData={selectedUserProgress}
+                speechProgress={speechProgress}
+                listeningProgress={listeningProgress}
             />
         </div>
     );

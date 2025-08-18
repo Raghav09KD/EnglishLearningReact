@@ -2,6 +2,7 @@ import { Toaster } from "react-hot-toast";
 import AllRoutes from "./Routes";
 import { MessageProvider } from "./components/MessageProvider/MessageProvider";
 import TeacherStudentManagement from "./pages/Users/UsrManagent";
+import AdminSignup from "./pages/Users/AdminSignUp";
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
     />
     {/* <TeacherStudentManagement /> */}
     <MessageProvider>
+   
       <AllRoutes />
     </MessageProvider>
   </>
