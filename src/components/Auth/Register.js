@@ -3,9 +3,10 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import { Input, Select, Button, Typography, message } from "antd";
+import { Input, Select, Button, Typography, message, notification } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import OTPModal from "../OtpModal";
+import validator from "validator";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -71,21 +72,38 @@ const Register = () => {
     e.preventDefault();
     setError(null);
 
-    try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email: formData.email,
-        password: formData.password,
+     // 1. Validate email format
+    if (!validator.isEmail(formData.email)) {
+      notification.error({
+        message: "Invalid Email",
+        description: "Please enter a valid email address.",
       });
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/register", formData);
+      // const res = await axios.post("http://localhost:5000/api/auth/login", {
+      //   email: formData.email,
+      //   password: formData.password,
+      // });
       if (res) {
         setIsModalOpen(true)
-
       }
       // localStorage.setItem("user", JSON.stringify(res.data));
       // login(res.data.user, res.data.token);
       // navigate("/student/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      console.error("Error during registration:", err);
+      const errorMessage = err.response?.data?.message || "Registration failed";
+      console.log(errorMessage);
+      setError(errorMessage);
+
+      // If the error is related to "Account already exists"
+      if (errorMessage === "Account already exists with this email") {
+        alert('Account already exists with this email.');
+      }
+
     }
   };
 
@@ -97,7 +115,7 @@ const Register = () => {
   };
 
   return (
- <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <Title level={3} className="text-center !mb-6 !text-gray-800">
           Create Your Account

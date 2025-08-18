@@ -7,6 +7,8 @@ import { apiPaths } from "../../lib/api/apiPath";
 import { useGlobalMessage } from "../MessageProvider/MessageProvider";
 import { Form, Input, Button, Typography, Card } from "antd";
 import OTPModal from "../OtpModal";
+import { paths } from '../../lib/path';
+
 
 const { Title, Text } = Typography;
 
@@ -29,8 +31,17 @@ const Login = () => {
     }
     login(user, token);
 
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
     toast.success(`Welcome, ${user.name}`);
-    navigate("/dashboard");
+
+    if (user.role === "admin") {
+      navigate(paths.ADMIN_DASHBOARD);
+    } else if (user.role === "student") {
+      navigate(paths.STUDENT_DASHBOARD);
+    } else {
+      toast.error("Unknown role. Contact support.");
+    }
   };
 
 

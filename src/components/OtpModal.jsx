@@ -15,7 +15,7 @@ export default function OTPModal({ isOpen, onClose, email, nextAction }) {
     const handleVerify = async () => {
         if (otp.length !== 6) {
             // setMessage("Please enter a valid 6-digit OTP.");
-            return;
+            return alert("Please enter a valid 6-digit OTP.");
         }
 
         setLoading(true);
@@ -39,12 +39,15 @@ export default function OTPModal({ isOpen, onClose, email, nextAction }) {
 
                     // window.location.reload(); // optional
                 }, 1000);
+            } if (data.message === "Invalid or expired OTP") {
+                alert("Invalid or expired OTP. Please try again.");
             } else {
-                // setMessage(`❌ ${data.message}`);
+                alert(data.message || "Something went wrong. Try again.");
             }
         } catch (err) {
             message(err || 'Incorrect OTP')
             // setMessage("❌ Something went wrong. Try again.");
+            alert("Incorrect OTP, please enter the correct otp")
         } finally {
             setLoading(false);
         }
