@@ -1,5 +1,5 @@
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import AuthNavbar from "../Navbar/AuthNavbar";
 import PublicNavbar from "../Navbar/PublicNavbar";
 import { useEffect, useState } from "react";
@@ -8,6 +8,8 @@ export default function Layout() {
   const [user, setUser] = useState(() =>
     JSON.parse(localStorage.getItem("user"))
   );
+
+  const location = useLocation();
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -27,9 +29,13 @@ export default function Layout() {
     };
   }, []);
 
+  // Hide navbar on these routes
+  const hideNavbarRoutes = ["/register", "/login", "/admin/login", "/admin/register"];
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
+
   return (
     <div>
-      {user ? <AuthNavbar /> : <PublicNavbar />}
+      {!shouldHideNavbar && (user ? <AuthNavbar /> : <PublicNavbar />)}
       <main className="min-h-screen bg-gray-100">
         <Outlet />
       </main>

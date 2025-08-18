@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import { Input, Select, Button, Typography, message, notification } from "antd";
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { Input, Select, Button, Typography, notification } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone, BookOutlined } from "@ant-design/icons";
 import OTPModal from "../OtpModal";
 import validator from "validator";
+import bgImage from "../../assets/svgs/image-2.png";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -28,8 +28,6 @@ const Register = () => {
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
   const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const evaluatePasswordStrength = (password) => {
     const strong =
@@ -72,7 +70,7 @@ const Register = () => {
     e.preventDefault();
     setError(null);
 
-     // 1. Validate email format
+    // Validate email format
     if (!validator.isEmail(formData.email)) {
       notification.error({
         message: "Invalid Email",
@@ -83,27 +81,17 @@ const Register = () => {
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/register", formData);
-      // const res = await axios.post("http://localhost:5000/api/auth/login", {
-      //   email: formData.email,
-      //   password: formData.password,
-      // });
       if (res) {
-        setIsModalOpen(true)
+        setIsModalOpen(true);
       }
-      // localStorage.setItem("user", JSON.stringify(res.data));
-      // login(res.data.user, res.data.token);
-      // navigate("/student/dashboard");
     } catch (err) {
       console.error("Error during registration:", err);
       const errorMessage = err.response?.data?.message || "Registration failed";
-      console.log(errorMessage);
       setError(errorMessage);
 
-      // If the error is related to "Account already exists"
       if (errorMessage === "Account already exists with this email") {
         alert('Account already exists with this email.');
       }
-
     }
   };
 
@@ -114,96 +102,134 @@ const Register = () => {
     return "";
   };
 
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <Title level={3} className="text-center !mb-6 !text-gray-800">
-          Create Your Account
-        </Title>
+    <div className="flex min-h-screen">
+      {/* Left: Form  */}
+      <div className="flex flex-1 items-center justify-center px-4 bg-white relative">
+        <div
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "16px",
+            padding: "32px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            width: "100%",
+            maxWidth: "400px",
+          }}
+        >
+          {/* Logo */}
+          <div style={{ position: "absolute", top: "20px", left: "20px" }}>
+            <div onClick={handleLogoClick} className="flex items-center gap-2 cursor-pointer">
+              <BookOutlined className="text-blue-600 text-2xl" />
+              <Title level={4} className="!mb-0 !text-blue-800">EnglishMaster</Title>
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Full Name */}
-          <Input
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            size="large"
-          />
+          <Title level={3} className="text-center !mb-6 !text-gray-800">
+            Create Your Account
+          </Title>
 
-          {/* Email */}
-          <Input
-            name="email"
-            type="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            size="large"
-          />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
+            <Input
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              size="large"
+            />
 
-          {/* Role */}
-          <Select
-            value={formData.role}
-            onChange={(value) =>
-              setFormData((prev) => ({ ...prev, role: value }))
-            }
-            size="large"
-            className="w-full"
-          >
-            <Option value="student">Student</Option>
-            <Option value="teacher">Teacher</Option>
-          </Select>
+            {/* Email */}
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              size="large"
+            />
 
-          {/* Password */}
-          <Input.Password
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            size="large"
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-            }
-          />
-          {formData.password && (
-            <p className={`text-sm font-medium ${getStrengthColor()}`}>
-              Password strength: {passwordStrength}
-            </p>
-          )}
+            {/* Role */}
+            <Select
+              value={formData.role}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, role: value }))
+              }
+              size="large"
+              className="w-full"
+            >
+              <Option value="student">Student</Option>
+              <Option value="teacher">Teacher</Option>
+            </Select>
 
-          {/* Confirm Password */}
-          <Input.Password
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            size="large"
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-            }
-          />
-          {!passwordMatch && (
-            <p className="text-red-500 text-sm">Passwords do not match</p>
-          )}
+            {/* Password */}
+            <Input.Password
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              size="large"
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
+            />
+            {formData.password && (
+              <p className={`text-sm font-medium ${getStrengthColor()}`}>
+                Password strength: {passwordStrength}
+              </p>
+            )}
 
-          {/* Submit */}
-          <Button
-            type="primary"
-            htmlType="submit"
-            block
-            size="large"
-            disabled={!isFormValid}
-          >
-            Register
-          </Button>
-        </form>
+            {/* Confirm Password */}
+            <Input.Password
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              size="large"
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
+            />
+            {!passwordMatch && (
+              <p className="text-red-500 text-sm">Passwords do not match</p>
+            )}
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <Link to="/login" className="text-indigo-500 hover:underline">
-            Login
-          </Link>
-        </p>
+            {/* Submit */}
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              disabled={!isFormValid}
+            >
+              Register
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      {/* Right: Image  */}
+      <div className="hidden md:flex flex-1 items-center justify-center bg-white">
+        <img
+          src={bgImage}
+          alt="Register visual"
+          style={{
+            width: "70%",
+            height: "auto",
+            objectFit: "contain",
+            maxHeight: "75%",
+          }}
+        />
       </div>
 
       {/* OTP Modal */}
