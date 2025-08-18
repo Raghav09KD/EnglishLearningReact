@@ -123,6 +123,10 @@ const AllRoutes = () => {
 
 
         {/* Student Layout with Sidebar */}
+        <Route path="/student" >
+          <Route path="dashboard" element={<StudentDashboard />} />
+        </Route>
+
         <Route path={paths.STUDENT_PROGRESS} element={<PrivateRoute allowedRoles={['student']}><EachUserProgress /></PrivateRoute>} />
 
         <Route path={paths.USER_MANAGEMENT} element={<PrivateRoute allowedRoles={['admin']}><TeacherStudentManagement /></PrivateRoute>} />

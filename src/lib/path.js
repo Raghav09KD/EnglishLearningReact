@@ -4,7 +4,7 @@ export const paths = {
     HOME : '/',
     
     STUDENT_DASHBOARD : '/student/dashboard',
-    ADMIN_DASHBOARD : '/admin',
+    ADMIN_DASHBOARD : '/dashboard',
     ADD_COURSE : '/addCourse',
     MANAGE_COURSE : '/manageCourse',
     COURSES : '/courses',
