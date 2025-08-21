@@ -52,32 +52,47 @@ export default function SpeechPractice() {
   };
 
   const createString = (text, mistakes) => {
-    // try {
-    let mistakesCopy = mistakes;
-    let idx = 0;
+    let mistakesCopy = mistakes?.map((w) => w?.toLowerCase()) || [];
 
-    const expectedWords = text?.toLowerCase()?.replace(/[^\w\s]/g, '').split(/\s+/)?.filter(Boolean);
-    console.log("🚀 ~ createString ~ expectedWords:", expectedWords)
+    const expectedWords = text
+      ?.toLowerCase()
+      ?.replace(/[^\w\s]/g, "")
+      .split(/\s+/)
+      ?.filter(Boolean);
 
-    let returnString = '';
+    let returnString = "";
 
     for (let word of expectedWords) {
-      console.log()
-      if (mistakesCopy?.[idx]?.toLowerCase() === word?.toLowerCase() && word) {
-        returnString += `<span class="inline-block px-2 py-1 m-1 bg-red-100 text-red-800 rounded-lg shadow-sm">${word}</span>`;
-        mistakesCopy[idx] = '';
-        idx++;
+      const cleanWord = word?.toLowerCase();
+      const baseClasses =
+        "inline-flex items-center gap-1 px-2 py-1 m-1 rounded-lg shadow-sm cursor-pointer transition-all duration-200";
+
+      if (mistakesCopy.includes(cleanWord)) {
+        returnString += `
+        <span 
+          class="${baseClasses} bg-red-100 text-red-800 hover:bg-red-200 hover:scale-105 group" 
+          onclick="window.speakWord && window.speakWord('${cleanWord}')"
+        >
+          ${word}
+          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200">🔊</span>
+        </span>`;
+        mistakesCopy = mistakesCopy.filter((w) => w !== cleanWord); // remove first match
       } else {
-        returnString += `<span class="inline-block px-2 py-1 m-1 bg-green-100 text-green-800 rounded-lg shadow-sm">${word}</span>`;
+        returnString += `
+        <span 
+          class="${baseClasses} bg-green-100 text-green-800 hover:bg-green-200 hover:scale-105 group" 
+          onclick="window.speakWord && window.speakWord('${cleanWord}')"
+        >
+          ${word}
+          <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200">🔊</span>
+        </span>`;
       }
     }
 
-    console.log("🚀 ~ createString ~ returnString:", returnString)
     return returnString;
-    // } catch (error) {
-    //   console.error("error", error);
-    // }
   };
+
+
 
   useEffect(() => {
     if (!text?.text || !feedback?.result?.mistakes) return;
@@ -101,6 +116,39 @@ export default function SpeechPractice() {
     if (accuracy >= 60) return 'Fair';
     return 'Needs Practice';
   };
+
+  const speakWord = (word) => {
+    if (!word) return;
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = "en-US"; 
+    speechSynthesis.speak(utterance);
+  };
+
+  const speakSentence = (sentence) => {
+    if (!sentence) {
+      console.log("❌ No sentence to play");
+      return;
+    }
+    console.log("🔊 speakSentence called with:", sentence);
+
+    try { window.speechSynthesis.cancel(); } catch { }
+    const utterance = new SpeechSynthesisUtterance(sentence);
+    utterance.lang = "en-US";
+    speechSynthesis.speak(utterance);
+  };
+
+
+
+
+  useEffect(() => {
+    window.speakWord = speakWord;
+    window.speakSentence = speakSentence;
+
+    return () => {
+      window.speakWord = null;
+      window.speakSentence = null;
+    };
+  }, []);
 
 
 
@@ -212,6 +260,31 @@ export default function SpeechPractice() {
                 </button>
               </div>
             )}
+            {(feedbackText || feedback) && (
+              <div className="text-center mt-2">
+                <button
+                  onClick={() => {
+                    const sentence = Array.isArray(feedback?.expected)
+                      ? feedback.expected.join(" ")
+                      : feedback?.expected || text?.text; // fallback to practice text
+
+                    console.log("▶️ Playing sentence:", sentence);
+                    speakSentence(sentence);
+                  }}
+                  title="Play corrected sentence"
+                  aria-label="Play corrected sentence"
+                  className="inline-flex items-center gap-2 border border-blue-400/70 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium text-sm shadow-sm transition-all duration-200"
+                >
+                  <SoundOutlined className="text-base" />
+                  Play Sentence
+                </button>
+
+              </div>
+            )}
+
+
+
+
 
             {/* Feedback Section */}
             {feedback && (

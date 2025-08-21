@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export const useSpeechRecognition = (onResult) => {
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef(null);
 
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognitionRef = useRef(null);
+  const listeningActiveRef = useRef(false); // gate for results
+
+  const createRecognition = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Your browser doesn't support Speech Recognition.");
-      return;
+      return null;
     }
 
     const recognition = new SpeechRecognition();
@@ -17,6 +20,11 @@ export const useSpeechRecognition = (onResult) => {
     recognition.lang = "en-IN";
 
     recognition.onresult = (event) => {
+      if (!listeningActiveRef.current) {
+        console.log("⚠️ Ignored stray result after stop");
+        return; // 👈 don’t forward background junk
+      }
+
       const transcript = Array.from(event.results)
         .map((result) => result[0].transcript)
         .join(" ");
@@ -25,38 +33,46 @@ export const useSpeechRecognition = (onResult) => {
     };
 
     recognition.onend = () => {
-      if (isListening) {
-        console.log("Restarting recognition…"); // ✅ debug
-        setTimeout(() => recognition.start(), 200); // 👈 delay prevents Chrome bug
+      console.log("Recognition ended");
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === "aborted") {
+        console.log("Recognition aborted cleanly");
+        return;
       }
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+      recognitionRef.current = null;
     };
 
-    recognition.onerror = (err) => {
-      console.error("Recognition error:", err); // ✅ catch errors
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.stop();
-    };
-  }, [onResult, isListening]);
+    return recognition;
+  };
 
   const start = () => {
-    if (recognitionRef.current && !isListening) {
-      console.log("🎤 Start listening…");
+    if (!isListening) {
+      console.log("🎤 Starting recognition...");
+      const recognition = createRecognition();
+      if (!recognition) return;
+      recognitionRef.current = recognition;
+      listeningActiveRef.current = true; // ✅ allow results
+      recognition.start();
       setIsListening(true);
-      recognitionRef.current.start();
     }
   };
 
   const stop = () => {
     if (recognitionRef.current && isListening) {
       console.log("🛑 Stop listening…");
+      recognitionRef.current.stop(); 
+    // recognitionRef.current.onresult = null;
+    // recognitionRef.current = null; 
       setIsListening(false);
-      recognitionRef.current.stop();
     }
   };
+
 
   return { start, stop, isListening };
 };
