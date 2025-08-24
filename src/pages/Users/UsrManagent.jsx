@@ -41,6 +41,7 @@ const TeacherStudentManagement = () => {
 
             setTeachers(teachers);
             setStudents(students);
+
         } catch (err) {
             console.error(err);
             message.error("Failed to load data");
@@ -53,31 +54,38 @@ const TeacherStudentManagement = () => {
         fetchData();
     }, []);
 
-    // 📌 Assign Students
-    const handleAssign = async () => {
-        try {
-            const res = await request({
-                method: "post",
-                url: '/admin/assignStudents',
-                data: {
-                    teacherId: selectedTeacher._id,
-                    studentIds: assignedStudentIds,
-                },
-            });
-            console.log("🚀 ~ handleAssign ~ res.data:", {
+// 📌 Assign Students
+const handleAssign = async () => {
+    try {
+        await request({
+            method: "post",
+            url: '/admin/assignStudents',
+            data: {
                 teacherId: selectedTeacher._id,
-                studentIds: assignedStudentIds,
-            })
-            // console.log("🚀 ~ handleAssign ~ res:", res)
-            console.log(assignedStudentIds)
-            message.success("Students assigned successfully");
-            setIsAssignModalOpen(false);
-            fetchData();
-        } catch (err) {
-            console.error(err);
-            message.error("Failed to assign students");
-        }
-    };
+                studentIds: assignedStudentIds, // all selected IDs
+            },
+        });
+
+        // 👉 Always replace with the current assignedStudentIds
+        const updatedStudents = students
+            .filter(s => assignedStudentIds.includes(s._id));
+
+        setSelectedTeacher(prev => ({
+            ...prev,
+            students: updatedStudents, // overwrite, don't merge
+        }));
+
+        message.success("Students assigned successfully");
+        setIsAssignModalOpen(false);
+
+        fetchData(); // keep global stats/teacher list in sync
+    } catch (err) {
+        console.error(err);
+        message.error("Failed to assign students");
+    }
+};
+
+
 
     // 📌 Remove Student
     const handleRemoveStudent = async (teacherId, studentId) => {
@@ -87,13 +95,21 @@ const TeacherStudentManagement = () => {
                 url: '/admin/removeStudent',
                 data: { teacherId, studentId },
             });
+
+            // 👉 Immediately update selectedTeacher state so right-side table refreshes
+            setSelectedTeacher(prev => ({
+                ...prev,
+                students: prev.students.filter(s => s._id !== studentId),
+            }));
+
             message.success("Student removed");
-            fetchData();
+            fetchData(); // still refresh global stats + teachers list
         } catch (err) {
             console.error(err);
             message.error("Failed to remove student");
         }
     };
+
 
     // 📌 Delete Teacher
     const handleDeleteTeacher = async (teacherId) => {
@@ -121,16 +137,20 @@ const TeacherStudentManagement = () => {
 
     useEffect(() => {
         if (selectedTeacher && selectedTeacher.students?.length > 0) {
-            const resolvedStudents = selectedTeacher.students
-                .map(studentId => students.find(s => s._id === studentId))
-                .filter(Boolean);
+            // Check if the first element is an ID (string) or object
+            if (typeof selectedTeacher.students[0] === "string") {
+                const resolvedStudents = selectedTeacher.students
+                    .map(studentId => students.find(s => s._id === studentId))
+                    .filter(Boolean);
 
-            setSelectedTeacher(prev => ({
-                ...prev,
-                students: resolvedStudents
-            }));
+                setSelectedTeacher(prev => ({
+                    ...prev,
+                    students: resolvedStudents
+                }));
+            }
         }
     }, [selectedTeacher?._id, students]);
+
 
     const openAssignModal = (teacher) => {
         setSelectedTeacher(teacher);
