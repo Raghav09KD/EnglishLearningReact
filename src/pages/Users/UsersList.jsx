@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Typography, Spin, Space, Tooltip, Button } from "antd";
+import { Table, Tag, Typography, Spin, Space, Tooltip, Button, Input } from "antd";
 import { EyeOutlined, StopOutlined } from '@ant-design/icons';
 import request from "../../lib/api/request";
+import { SearchOutlined } from "@ant-design/icons";
 import UserProgressDrawer from "./UserProgressDrawer";
 
 const { Title } = Typography;
@@ -13,6 +14,8 @@ const AdminUserTable = () => {
     const [listeningProgress, setListeningProgress] = useState([]);
     const [speechProgress, setSpeechProgress] = useState([]);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [searchText, setSearchText] = useState("");
+
 
     const handleFetchAllUsers = async () => {
         try {
@@ -116,13 +119,13 @@ const AdminUserTable = () => {
             dataIndex: "role",
             key: "role",
             render: (role) => (
-                <Tag color={role === "admin" ? "geekblue" : "green"}>
+                <Tag color={role === "teacher" ? "geekblue" : "green"}>
                     {role?.toUpperCase()}
                 </Tag>
             ),
             filters: [
                 { text: "Student", value: "student" },
-                { text: "Admin", value: "admin" },
+                { text: "Teacher", value: "teacher" },
             ],
             onFilter: (value, record) => record?.role === value,
         },
@@ -165,10 +168,29 @@ const AdminUserTable = () => {
         }
     ];
 
+    const filteredUsers = users.filter((user) => {
+        const search = searchText.toLowerCase();
+        return (
+            user?.name?.toLowerCase().includes(search) ||
+            user?.email?.toLowerCase().includes(search) ||
+            user?.role?.toLowerCase().includes(search) ||
+            new Date(user?.createdAt).toLocaleDateString().includes(search)
+        );
+    });
+
+
 
     return (
         <div className="p-4 bg-white rounded shadow-md">
             <Title level={3} className="mb-4">All Registered Users</Title>
+
+            <Input
+                placeholder="Search by name, email, role or date"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ marginBottom: 16, width: "100%" }}
+            />
 
             {loading ? (
                 <div className="text-center py-10">
@@ -176,7 +198,8 @@ const AdminUserTable = () => {
                 </div>
             ) : (
                 <Table
-                    dataSource={users}
+                    dataSource={filteredUsers}
+                    // dataSource={users}
                     columns={columns}
                     rowKey="_id"
                     pagination={{ pageSize: 8 }}
