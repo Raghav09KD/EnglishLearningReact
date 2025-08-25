@@ -7,6 +7,8 @@ export const paths = {
     ADMIN_DASHBOARD : '/dashboard',
     ADD_COURSE : '/addCourse',
     MANAGE_COURSE : '/manageCourse',
+
+    MANAGE_COURSE_ASSIGNMENTS : '/manageCourseAssignments',
     COURSES : '/courses',
 
     PRACTISE_SPEECH : '/speechPractise/test',

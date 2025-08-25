@@ -32,6 +32,7 @@ import { AuthContext } from './context/AuthContext';
 import ResetPassword from './components/ResetPassword';
 import AdminSignup from './pages/Users/AdminSignUp';
 import AdminVoiceCourses from './pages/VoiceCourses/ManageVoiceCourses';
+import TeacherCourseManager from './pages/Course/TeacherCourseManagement';
 
 
 const AllRoutes = () => {
@@ -97,6 +98,8 @@ const AllRoutes = () => {
 
         <Route path="/courses" element={<PrivateRoute allowedRoles={["admin", 'student', 'teacher']}><CourcesList /></PrivateRoute>} />
         <Route path={paths.MANAGE_COURSE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AdminCoursesTable /></PrivateRoute>} />
+        <Route path={paths.MANAGE_COURSE_ASSIGNMENTS} element={<PrivateRoute allowedRoles={[ 'teacher']}><TeacherCourseManager /></PrivateRoute>} />
+
 
         <Route path="/courses/:id" element={<PrivateRoute allowedRoles={["admin", 'student']}><CourseDetails /></PrivateRoute>} />
 

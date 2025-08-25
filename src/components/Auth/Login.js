@@ -39,7 +39,7 @@ const Login = () => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
     toast.success(`Welcome, ${user.name}`);
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "teacher") {
       navigate(paths.ADMIN_DASHBOARD);
     } else if (user.role === "student") {
       navigate(paths.STUDENT_DASHBOARD);

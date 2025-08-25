@@ -43,6 +43,13 @@ const AdminDashboard = () => {
             link={paths.MANAGE_COURSE}
           />
 
+           {user?.role === 'teacher' && <DashboardCard
+            title="Manage Course Assignments"
+            icon={<ListChecks size={24} />}
+            color="green"
+            link={paths.MANAGE_COURSE_ASSIGNMENTS}
+          />}
+
           {/* Speech Practice */}
           <DashboardCard
             title="Add Speech Practice"
