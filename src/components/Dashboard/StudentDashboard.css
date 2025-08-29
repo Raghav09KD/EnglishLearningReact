@@ -1,0 +1,39 @@
+.student-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dashboard-container {
+  padding: 40px;
+}
+
+.dashboard-container h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.dashboard-container p {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.module-card {
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
