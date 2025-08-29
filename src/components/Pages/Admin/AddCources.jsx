@@ -46,6 +46,7 @@ export default function AdminAddCourse({ onSubmit }) {
       description: "",
       level: "easy",
       sections: [],
+      createdBy: "",
     };
 
   });
@@ -220,6 +221,7 @@ export default function AdminAddCourse({ onSubmit }) {
             onChange={(e) => setCourse({ ...course, description: e.target.value })}
           />
         </Form.Item>
+
 
         {/* SECTIONS */}
         <Divider orientation="left">📂 Course Sections</Divider>

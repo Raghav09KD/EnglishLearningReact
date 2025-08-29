@@ -16,7 +16,7 @@ export default function CoursesList() {
       try {
         const data = await getAllCourses();
         setCourses(data);
-        setFilteredCourses(data); 
+        setFilteredCourses(data);
       } catch (err) {
         console.error("Failed to fetch courses:", err);
       } finally {
@@ -80,6 +80,8 @@ export default function CoursesList() {
                     <Text type="secondary" className="text-sm">
                       Progress overview
                     </Text>
+
+
                   </div>
 
                   <div className="flex justify-end mt-4">
