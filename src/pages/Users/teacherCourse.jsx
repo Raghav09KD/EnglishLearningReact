@@ -37,7 +37,7 @@ const TeacherCourseManagement = () => {
 
             const courseRes = await request({
                 method: "get",
-                url: "/admin/fetchAllCourses",
+                url: "/admin/fetchAllGlobalCourses",
                 auth: true,
             });
 
