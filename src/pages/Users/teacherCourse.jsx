@@ -9,42 +9,33 @@ import {
     Transfer,
     Typography,
     message,
+    Tabs,
 } from "antd";
-import request from "../../lib/api/request"; 
-import { apiPaths } from "../../lib/api/apiPath"; 
+import request from "../../lib/api/request";
+import TabPane from "antd/es/tabs/TabPane";
 
 const { Title } = Typography;
 
 const TeacherCourseManagement = () => {
     const [teachers, setTeachers] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [teacherCourses, setTeacherCourses] = useState([]);
+    const [activeTab, setActiveTab] = useState("1");
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [assignedCourseIds, setAssignedCourseIds] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // 📌 Fetch Teachers + Courses
+    // 📌 Fetch Teachers
     const fetchData = async () => {
         try {
             setLoading(true);
-
-            // Fetch teachers and courses from API
             const users = await request({
                 method: "get",
                 url: "/admin/fetchAllUsers",
                 auth: true,
             });
-
-            const courseRes = await request({
-                method: "get",
-                url: "/admin/fetchAllGlobalCourses",
-                auth: true,
-            });
-
-            const teachers = users.filter((u) => u.role === "teacher");
-
-            setTeachers(teachers);
-            setCourses(courseRes);
+            setTeachers(users.filter((u) => u.role === "teacher"));
         } catch (err) {
             console.error(err);
             message.error("Failed to load data");
@@ -53,41 +44,99 @@ const TeacherCourseManagement = () => {
         }
     };
 
+    // 📌 Fetch Courses by Type
+    const fetchDefaultCourses = async () => {
+        try {
+            const res = await request({
+                method: "get",
+                url: "/admin/fetchAllGlobalCourses",
+                auth: true,
+            });
+            setCourses(res);
+        } catch {
+            setCourses([]);
+        }
+    };
+
+    const fetchAllVoiceCourses = async () => {
+        try {
+            const res = await request({
+                method: "get",
+                url: "/voicePractise/fetchAllGlobal",
+                auth: true,
+            });
+            setCourses(res);
+        } catch {
+            setCourses([]);
+        }
+    };
+
+    const fetchAllSpeechCourses = async () => {
+        try {
+            const res = await request({
+                method: "get",
+                url: "/speechPractise/fetchAllGlobal",
+                auth: true,
+            });
+            setCourses(res);
+        } catch {
+            setCourses([]);
+        }
+    };
+
+    // 📌 Run once
     useEffect(() => {
         fetchData();
     }, []);
 
+    // 📌 Handle tab change
+    useEffect(() => {
+        if (!selectedTeacher) return;
+        console.log(selectedTeacher)
+
+        switch (activeTab) {
+            case "1":
+                fetchDefaultCourses();
+                setTeacherCourses(selectedTeacher?.courses || []);
+                break;
+            case "2":
+                fetchAllVoiceCourses();
+                setTeacherCourses(selectedTeacher?.voiceCourses || []);
+                break;
+            case "3":
+                fetchAllSpeechCourses();
+                setTeacherCourses(selectedTeacher?.speechCourses || []);
+                break;
+            default:
+                break;
+        }
+    }, [activeTab, selectedTeacher]);
+
     // 📌 Assign Courses
     const handleAssign = async () => {
-        const currentCourseCount = selectedTeacher.courses?.length || 0;
+        let courseType =
+            activeTab === "1"
+                ? "courses"
+                : activeTab === "2"
+                    ? "voiceCourses"
+                    : "speechCourses";
 
-        // Check if we are assigning more than 10 courses
-        if (currentCourseCount + assignedCourseIds.length > 10) {
+        const currentCount = (teacherCourses?.length || 0);
+        if (currentCount + assignedCourseIds.length > 10) {
             message.error("You cannot assign more than 10 courses to this teacher.");
-            alert("You cannot assign more than 10 courses to this teacher")
-            return; // Prevent further action if more than 10 courses are being assigned
+            return;
         }
 
         try {
-            // Proceed with assigning courses if under the limit
             await request({
                 method: "post",
                 url: "/admin/assignCourses",
                 data: {
                     teacherId: selectedTeacher._id,
                     courseIds: assignedCourseIds,
+                    courseType,
                 },
             });
-
-            // Update selected teacher's courses after assignment
-            const updatedCourses = courses.filter((c) =>
-                assignedCourseIds.includes(c._id)
-            );
-
-            setSelectedTeacher((prev) => ({
-                ...prev,
-                courses: updatedCourses,
-            }));
 
             message.success("Courses assigned successfully");
             setIsAssignModalOpen(false);
@@ -100,17 +149,23 @@ const TeacherCourseManagement = () => {
 
     // 📌 Remove Course
     const handleRemoveCourse = async (teacherId, courseId) => {
+        let courseType =
+            activeTab === "1"
+                ? "courses"
+                : activeTab === "2"
+                    ? "voiceCourses"
+                    : "speechCourses";
+
         try {
             await request({
                 method: "post",
                 url: "/admin/removeCourse",
-                data: { teacherId, courseId },
+                data: { teacherId, courseId, courseType },
             });
 
-            setSelectedTeacher((prev) => ({
-                ...prev,
-                courses: prev.courses.filter((c) => c._id !== courseId),
-            }));
+            setTeacherCourses((prev) =>
+                prev.filter((c) => (c._id || c) !== courseId)
+            );
 
             message.success("Course removed");
             fetchData();
@@ -120,38 +175,25 @@ const TeacherCourseManagement = () => {
         }
     };
 
+    const openAssignModal = (teacher) => {
+        setSelectedTeacher(teacher);
+
+        const selected =
+            activeTab === "1"
+                ? teacher.courses
+                : activeTab === "2"
+                    ? teacher.voiceCourses
+                    : teacher.speechCourses;
+
+        setAssignedCourseIds(selected?.map((c) => c._id || c) || []);
+        setIsAssignModalOpen(true);
+    };
+
     // 📌 Stats
     const totalTeachers = teachers?.length;
     const totalCourses = courses?.length;
-    const assignedCourses = teachers?.reduce(
-        (acc, t) => acc + (t.courses?.length || 0),
-        0
-    );
+    const assignedCourses = teacherCourses?.length || 0;
     const unassignedCourses = totalCourses - assignedCourses;
-
-    useEffect(() => {
-        if (selectedTeacher && selectedTeacher.courses?.length > 0) {
-            if (typeof selectedTeacher.courses[0] === "string") {
-                const resolvedCourses = selectedTeacher.courses
-                    .map(courseId => courses.find(s => s._id === courseId))
-                    .filter(Boolean);
-
-                setSelectedTeacher(prev => ({
-                    ...prev,
-                    courses: resolvedCourses
-                }));
-            }
-        }
-    }, [selectedTeacher?._id, courses]);
-
-    const openAssignModal = (teacher) => {
-        console.log("Courses for Teacher:", teacher.courses);
-
-        setAssignedCourseIds([]);
-        setSelectedTeacher(teacher);
-        setAssignedCourseIds(teacher.courses?.map((c) => c._id || c) || []);
-        setIsAssignModalOpen(true);
-    };
 
     return (
         <div className="p-6">
@@ -170,6 +212,12 @@ const TeacherCourseManagement = () => {
                 </Col>
             </Row>
 
+            <Tabs activeKey={activeTab} onChange={setActiveTab}>
+                <TabPane tab="Courses" key="1" />
+                <TabPane tab="Voice Courses" key="2" />
+                <TabPane tab="Speech Courses" key="3" />
+            </Tabs>
+
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={24} md={12}>
                     <Card title="Teachers" bordered={false}>
@@ -183,26 +231,20 @@ const TeacherCourseManagement = () => {
                                 { title: "Email", dataIndex: "email" },
                                 {
                                     title: "Courses",
-                                    render: (teacher) => teacher.courses?.length || 0,
+                                    render: (teacher) => {
+                                        if (activeTab === "1") return teacher.courses?.length || 0;
+                                        if (activeTab === "2") return teacher.voiceCourses?.length || 0;
+                                        return teacher.speechCourses?.length || 0;
+                                    },
                                 },
                                 {
                                     title: "Actions",
                                     render: (teacher) => (
                                         <>
-                                            <Button
-                                                type="link"
-                                                onClick={() => {
-                                                    if (selectedTeacher && selectedTeacher._id === teacher._id) {
-                                                        return;
-                                                    }
-                                                    setSelectedTeacher(teacher)
-                                                }}                                            >
+                                            <Button type="link" onClick={() => setSelectedTeacher(teacher)}>
                                                 View
                                             </Button>
-                                            <Button
-                                                type="link"
-                                                onClick={() => openAssignModal(teacher)}
-                                            >
+                                            <Button type="link" onClick={() => openAssignModal(teacher)}>
                                                 Assign
                                             </Button>
                                         </>
@@ -218,7 +260,7 @@ const TeacherCourseManagement = () => {
                         <Card title={`Courses of ${selectedTeacher.name}`} bordered={false}>
                             <Table
                                 rowKey={(record) => record._id}
-                                dataSource={selectedTeacher.courses}
+                                dataSource={teacherCourses}
                                 pagination={false}
                                 columns={[
                                     { title: "Course Name", dataIndex: "title" },
@@ -257,12 +299,10 @@ const TeacherCourseManagement = () => {
                 width={window.innerWidth < 768 ? "90%" : "500px"}
             >
                 <Transfer
-                    dataSource={courses
-                        ?.filter((c) => !c.teacher) // Only unassigned courses
-                        .map((c) => ({
-                            key: c._id,
-                            title: c.title,
-                        }))}
+                    dataSource={courses.map((c) => ({
+                        key: c._id,
+                        title: c.title,
+                    }))}
                     targetKeys={assignedCourseIds}
                     onChange={(nextKeys) => setAssignedCourseIds(nextKeys)}
                     render={(item) => item.title}
