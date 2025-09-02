@@ -133,7 +133,7 @@ const AllRoutes = () => {
         <Route path={paths.ADD_LISTENING_PRACTISE} element={<PrivateRoute allowedRoles={["admin", 'teacher']}><AddVoiceCourses /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_LIST} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursesList /></PrivateRoute>} />
         <Route path={paths.LISTENING_COURSE_DETAILS} element={<PrivateRoute allowedRoles={["student"]}><VoiceCoursePlayer /></PrivateRoute>} />
-        <Route path={paths.MANAGE_VOICE_COURSES} element={<PrivateRoute allowedRoles={["admin"]}><AdminVoiceCourses /></PrivateRoute>} />
+        <Route path={paths.MANAGE_VOICE_COURSES} element={<PrivateRoute allowedRoles={["admin",'teacher']}><AdminVoiceCourses /></PrivateRoute>} />
 
 
 

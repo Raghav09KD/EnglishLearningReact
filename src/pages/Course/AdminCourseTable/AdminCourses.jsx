@@ -29,12 +29,21 @@ export default function AdminCoursesTable() {
   const handleEditCourse = async (course) => {
     try {
       const res = await getCourseById(course._id);
-      navigate(paths.ADD_COURSE, { state: { course: res } });
+
+      const stateData = { course: res };
+
+      // If global course → add readOnlyFields
+      if (res.isGlobal) {
+        stateData.readOnlyFields = ["title", "description"];
+      }
+
+      navigate(paths.ADD_COURSE, { state: stateData });
     } catch (err) {
       console.error("Error fetching course for edit:", err);
       message.error("Error fetching course");
     }
   };
+
 
   const handleToggleActive = async (course) => {
     try {
@@ -80,13 +89,23 @@ export default function AdminCoursesTable() {
       align: "center",
       responsive: ["sm", "md", "lg"],
     },
+    // {
+    //   title: "Sections",
+    //   dataIndex: "totalCount",
+    //   key: "totalCount",
+    //   align: "center",
+    //   responsive: ["md", "lg"],
+    // },
     {
-      title: "Sections",
-      dataIndex: "totalCount",
-      key: "totalCount",
+      title: "Created By Admin",
+      key: "createdByAdmin",
       align: "center",
       responsive: ["md", "lg"],
+      render: (_, record) => (
+        record.isGlobal === true ? "Yes" : "No"
+      )
     },
+
     // {
     //   title: "Completed",
     //   dataIndex: "completedCount",
