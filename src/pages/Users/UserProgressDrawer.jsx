@@ -103,6 +103,7 @@ export default function UserProgressDrawer({
             ) : (
               <Row gutter={[16, 16]}>
                 {courseProgress.map((course, index) => {
+                  const courseTitle = course?.course?.title || "Untitled Course";
                   const totalSections = course?.course?.sections?.length || 1;
                   const completed = course?.completedSections?.length || 0;
                   const progressPercent = Math.round((completed / totalSections) * 100);
@@ -110,7 +111,13 @@ export default function UserProgressDrawer({
                   return (
                     <Col span={24} key={index}>
                       <Card bordered hoverable>
-                        <Row justify="space-between">
+                        {/* Add course title and total sections */}
+                        <h3 style={{ fontWeight: "600", fontSize: "16px", marginBottom: "8px" }}>
+                          Title - {courseTitle} <Tag color="blue">Total Sections: {totalSections}</Tag>
+                        </h3>
+
+
+                        <Row justify="space-between" align="middle">
                           <Col>
                             <p><strong>Current Section:</strong> {course?.currentSection}</p>
                             <p><strong>Completed Sections:</strong> {completed} / {totalSections}</p>
@@ -148,6 +155,7 @@ export default function UserProgressDrawer({
                   );
                 })}
               </Row>
+
             )}
           </motion.div>
         </TabPane>
