@@ -152,6 +152,7 @@ const AdminUserTable = () => {
                         </Button>
                     </Tooltip>
 
+
                     <Tooltip title={record.isActive ? "Deactivate this user" : "Activate this user"}>
                         <Button
                             type={record.isActive ? "default" : "primary"}

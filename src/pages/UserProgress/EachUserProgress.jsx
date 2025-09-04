@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import request from "../../lib/api/request";
 import { fetchProgress } from "../Course/SpeechRecognisation/speechHelper";
 import { Card, Typography, Progress, Table, Collapse, Divider } from "antd";
-import TabPane from "antd/es/tabs/TabPane";
+// import TabPane from "antd/es/tabs/TabPane";
+// import { Tabs } from "antd";
 import { useLocation } from "react-router-dom";
 import { fetchListeningProgress } from "../VoiceCourses/voiceCourseHelper";
 import {
@@ -22,6 +23,8 @@ import bronzeMedal from "../../assets/svgs/bronzeMedal.svg";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
+const { TabPane } = Tabs;
+
 
 export default function EachUserProgress() {
     const location = useLocation();

@@ -2,14 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Input, Button, Typography, Card, notification } from 'antd';
-import { BookOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const { token } = useParams();  // Get reset token from URL
   const navigate = useNavigate();
 
@@ -19,17 +16,10 @@ const ResetPassword = () => {
     }
   }, [token, navigate]);
 
-  const handleResetPassword = async () => {
-    if (password !== confirmPassword) {
-      notification.error({
-        message: 'Passwords do not match',
-        description: 'Please ensure both passwords match.',
-      });
-      return;
-    }
+  const handleResetPassword = async (values) => {
+    const { password } = values;
 
     setLoading(true);
-
     try {
       const res = await axios.post('http://localhost:5000/api/auth/reset-password', {
         token,
@@ -61,7 +51,7 @@ const ResetPassword = () => {
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           width: '100%',
           maxWidth: '400px',
-          marginTop: '-80px', // Adjusted the margin-top to reduce space
+          marginTop: '-80px',
         }}
       >
         <Card className="w-full border-0 shadow-none">
@@ -73,33 +63,46 @@ const ResetPassword = () => {
           </Text>
 
           {/* Reset Password Form */}
-          <Form layout="vertical" onFinish={handleResetPassword} requiredMark={false} className="space-y-4">
+          <Form
+            layout="vertical"
+            onFinish={handleResetPassword}
+            requiredMark={false}
+            className="space-y-4"
+          >
             {/* New Password */}
             <Form.Item
               label={<span className="text-sm font-medium">New Password</span>}
               name="password"
-              rules={[{ required: true, message: 'Please enter your new password' }]}
+              rules={[
+                { required: true, message: 'Please enter your new password' },
+                {
+                  pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message:
+                    'Password must be at least 8 characters long, include one uppercase, one lowercase, one number, and one special character',
+                },
+              ]}
             >
-              <Input.Password
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password"
-                size="large"
-              />
+              <Input.Password placeholder="Enter new password" size="large" />
             </Form.Item>
 
             {/* Confirm Password */}
             <Form.Item
               label={<span className="text-sm font-medium">Confirm Password</span>}
               name="confirmPassword"
-              rules={[{ required: true, message: 'Please confirm your new password' }]}
+              dependencies={['password']}
+              rules={[
+                { required: true, message: 'Please confirm your new password' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Passwords do not match!'));
+                  },
+                }),
+              ]}
             >
-              <Input.Password
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                size="large"
-              />
+              <Input.Password placeholder="Confirm new password" size="large" />
             </Form.Item>
 
             {/* Submit Button */}

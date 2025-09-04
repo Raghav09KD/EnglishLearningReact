@@ -4,7 +4,7 @@ import request from "../../lib/api/request";
 export const getAllCourses = (params = {}) =>
   request({
     method: "get",
-    url: "/courses/getCourcesForStudent",
+    url: "/courses/getCources",
     params, // <-- pass query params like { level: 'easy' }
     auth: true
   });

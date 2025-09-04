@@ -9,12 +9,15 @@ import {
     Transfer,
     Typography,
     message,
-    Tabs,
 } from "antd";
 import request from "../../lib/api/request";
-import TabPane from "antd/es/tabs/TabPane";
+// import TabPane from "antd/es/tabs/TabPane";
+import { Tabs } from "antd";
+
 
 const { Title } = Typography;
+const { TabPane } = Tabs;
+
 
 const TeacherCourseManagement = () => {
     const [teachers, setTeachers] = useState([]);
