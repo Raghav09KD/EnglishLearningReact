@@ -9,6 +9,14 @@ export const getAllCourses = (params = {}) =>
     auth: true
   });
 
+export const getCoursesForStudent = (params = {}) =>
+  request({
+    method: "get",
+    url: "/courses/getCourcesForStudent",
+    params, // <-- pass query params like { level: 'easy' }
+    auth: true
+  });
+
 export const getCourseById = (id) =>
   request({
     method: "get",

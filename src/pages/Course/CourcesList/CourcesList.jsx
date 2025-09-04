@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getAllCourses } from "../coursesHelper";
+import { getAllCourses, getCoursesForStudent } from "../coursesHelper";
 import { Progress, Card, Typography, Row, Col, Button } from "antd";
+import { AuthContext } from "../../../context/AuthContext";
 
 const { Title, Text } = Typography;
 
 export default function CoursesList() {
+  const { user, logout } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,12 @@ export default function CoursesList() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const data = await getAllCourses();
+        let data = [];
+        if (user.role === 'teacher' || user.role === 'admin') {
+          data = await getAllCourses();
+        } else {
+          data = await getCoursesForStudent();
+        }
         setCourses(data);
         setFilteredCourses(data);
       } catch (err) {

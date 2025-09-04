@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Table, Tag, Typography, Spin, Space, Tooltip, Button, Input } from "antd";
 import { EyeOutlined, StopOutlined } from '@ant-design/icons';
 import request from "../../lib/api/request";
 import { SearchOutlined } from "@ant-design/icons";
 import UserProgressDrawer from "./UserProgressDrawer";
+import { AuthContext } from "../../context/AuthContext";
 
 const { Title } = Typography;
 
 const AdminUserTable = () => {
+
+    const user = useContext(AuthContext);
+    console.log(user)
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedUserProgress, setSelectedUserProgress] = useState([]);
@@ -152,7 +156,7 @@ const AdminUserTable = () => {
                         </Button>
                     </Tooltip>
 
-                    <Tooltip title={record.isActive ? "Deactivate this user" : "Activate this user"}>
+                    {user?.user?.role === 'admin' && <Tooltip title={record.isActive ? "Deactivate this user" : "Activate this user"}>
                         <Button
                             type={record.isActive ? "default" : "primary"}
                             danger={record.isActive}
@@ -161,7 +165,7 @@ const AdminUserTable = () => {
                         >
                             {record.isActive ? "Deactivate" : "Activate"}
                         </Button>
-                    </Tooltip>
+                    </Tooltip>}
 
                 </Space>
             ),
