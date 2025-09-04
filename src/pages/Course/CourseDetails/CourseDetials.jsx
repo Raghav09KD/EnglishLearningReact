@@ -82,10 +82,10 @@ export default function AdminCourseDetails() {
 
         setAllSections(sectionsWithOverview);
         setCourseDetails(courseRes);
-        
+
         console.log("Course Details:", courseDetails);
 
-        console.log("🚀 courseRes", courseRes); 
+        console.log("🚀 courseRes", courseRes);
 
         const firstAccessibleIndex = sectionsWithOverview.findIndex(
           (s) => s.isAccessible
@@ -385,10 +385,12 @@ export default function AdminCourseDetails() {
                     }}
                     icon={<RightOutlined />}
                     size={isMobile ? "middle" : "large"}
+                    disabled={progressPercent === 100} 
                   >
-                    Start Course
+                    {progressPercent === 100 ? "Course Completed" : "Start Course"}
                   </Button>
                 </div>
+
               </>
             ) : (
               <>
@@ -513,6 +515,7 @@ export default function AdminCourseDetails() {
                       <Button
                         type="primary"
                         onClick={() => {
+                          if (progressPercent === 100) return; 
                           if (isLastSection) {
                             navigate(paths.COURSES);
                           } else {
@@ -522,8 +525,13 @@ export default function AdminCourseDetails() {
                         icon={<RightOutlined />}
                         size={isMobile ? "middle" : "large"}
                         block={isMobile}
+                        disabled={progressPercent === 100} 
                       >
-                        {isLastSection ? "Finish" : "Next"}
+                        {progressPercent === 100
+                          ? "Course Completed"
+                          : isLastSection
+                            ? "Finish"
+                            : "Next"}
                       </Button>
                     )}
 
